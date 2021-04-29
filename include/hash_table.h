@@ -3,24 +3,22 @@
 
 #include "ONEGIN_lib.h"
 #include "list.h"
+#include "hash_structures.h"
 
-
-typedef size_t HashT;
 
 const size_t MAX_WORD_LEN      = 100;
 const int    POLYNOMIAL_HASH_P = 257;
 
 
-struct HashTableElem {
-    const char* src_word;
-    const char* translate;
-};
-
 struct HashTable {
     size_t n_elems;
     size_t n_buckets;
     size_t max_load_factor;
-    List<HashTableElem>* buckets;
+    List*  buckets;
+
+    const char* Find(const char* req_word);
+    int Rehash();
+    int Insert(HashTableElemT* new_elem);
 };
 
 

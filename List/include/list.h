@@ -2,29 +2,28 @@
 #define LIST_H
 
 #include "ONEGIN_lib.h"
+#include "hash_structures.h"
 
 
 static const int SIZE_CAPACITY_DIFF = 2;
 
-enum ListErrors {
-    UNABLE_TO_ALLOC = 1
+enum ListStates {
+    UNABLE_TO_ALLOC = 1,
+    ELEM_FOUND
 };
 
 
-template<typename ListT>
+typedef HashTableElemT ListElemT;
+
 struct List {
-	ListT* arr;
-	size_t size;
-	size_t capacity;
+	ListElemT* data;
+	size_t     size;
+	size_t     capacity;
 
-	ListT* Find  (const ListT* elem);
-	int    Insert(const ListT* elem);
-	int    CheckSize();
+	const char* Find(const char*  elem);
+	int         Insert(const ListElemT* elem);
+	int         CheckAndUpdateCapacity();
 };
-
-
-
-
 
 
 #endif /* list.h */

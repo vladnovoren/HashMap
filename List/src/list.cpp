@@ -1,28 +1,26 @@
 #include "list.h"
 
+const char* List::Find(const char *c_str) {
+    assert(c_str);
 
-template<typename ListT>
-ListT* List<ListT>::Find(const ListT* elem) {
-	assert(elem);
+    for (size_t pos = 0; pos < this->size; pos++) {
+        if (c_str == this->data[pos].req_word)
+            return req_word;
+    }
 
-	for (size_t node_num = 0; node_num < this->n_elems; node_num++)
-	    if (this->arr[node_num] == *elem)
-	        return this->arr + node_num;
-
-	return nullptr;
+    return nullptr;
 }
 
 
-template<typename ListT>
-int List<ListT>::CheckSize() {
+int List::CheckAndUpdateCapacity() {
     size_t new_capacity = 0;
     if (this->size * SIZE_CAPACITY_DIFF < this->capacity && this->size || this->size == this->capacity) {
-        new_capacity   = this->size * SIZE_CAPACITY_DIFF;
-        ListT* tmp_arr = realloc(this->arr, new_capacity);
-        if (!tmp_arr)
+        new_capacity       = this->size * SIZE_CAPACITY_DIFF;
+        ListElemT* tmp_data = (ListElemT*)realloc(this->data, new_capacity);
+        if (!tmp_data)
             return UNABLE_TO_ALLOC;
         else {
-            this->arr      = tmp_arr;
+            this->data      = tmp_data;
             this->capacity = new_capacity;
         }
     }
@@ -31,22 +29,18 @@ int List<ListT>::CheckSize() {
 }
 
 
-template<typename ListT>
-int List<ListT>::Insert(const ListT* elem) {
+int List::Insert(const ListElemT* elem) {
 	assert(elem);
 
-	ListT* found = this->Find(elem);
+	const char* found = this->Find(elem->req_word);
 	if (found)
-	    return found;
+	    return ELEM_FOUND;
 
 	int check_size_res = this->CheckSize();
     if (check_size_res)
         return check_size_res;
 
-	this->arr[this->size++] = *elem;
+	this->data[this->size++] = *elem;
 
 	return 0;
 }
-
-
-
