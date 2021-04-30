@@ -11,4 +11,4 @@ struct HashTableElemT {
 };
 
 
-#endif /* hash_structures.h */
+#endif /* hash_table_structures.h */

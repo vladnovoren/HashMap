@@ -3,22 +3,43 @@
 
 #include "ONEGIN_lib.h"
 #include "list.h"
-#include "hash_structures.h"
+#include "hash_table_structures.h"
+#include "dic_parser.h"
 
 
-const size_t MAX_WORD_LEN      = 100;
-const int    POLYNOMIAL_HASH_P = 257;
+const size_t MAX_WORD_LEN            = 100;
+const int    POLYNOMIAL_HASH_P       = 257;
+const size_t DEFAULT_N_BUCKETS       = 2011;
+const size_t DEFAULT_N_ELEMS         = 0;
+const double DEFAULT_MAX_LOAD_FACTOR = 0.95;
 
+
+enum HashTableStates {
+    HASH_TABLE_NO_ERRORS,
+    HASH_TABLE_UNABLE_TO_ALLOC,
+    HASH_TABLE_LIST_ERROR
+};
+
+
+struct HashTableState {
+    int    err_code;
+    size_t broken_list_num;
+};
 
 struct HashTable {
-    size_t n_elems;
-    size_t n_buckets;
-    size_t max_load_factor;
-    List*  buckets;
+    size_t         n_elems;
+    size_t         n_buckets;
+    double         max_load_factor;
+    List*          buckets;
+    HashTableState state;
+
+    int  Construct();
+    void Set(size_t n_elems, size_t n_buckets, double max_load_factor, List*  buckets);
+    void Destruct();
 
     const char* Find(const char* req_word);
-    int Rehash();
-    int Insert(HashTableElemT* new_elem);
+    int         Rehash();
+    int         Insert(const DictionaryElement new_elem);
 };
 
 

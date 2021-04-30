@@ -2,14 +2,16 @@
 #define LIST_H
 
 #include "ONEGIN_lib.h"
-#include "hash_structures.h"
+#include "hash_table_structures.h"
 
 
-static const int SIZE_CAPACITY_DIFF = 2;
+static const int    SIZE_CAPACITY_DIFF  = 2;
+static const size_t START_LIST_SIZE     = 0;
+static const size_t START_LIST_CAPACITY = 8;
 
 enum ListStates {
-    UNABLE_TO_ALLOC = 1,
-    ELEM_FOUND
+	LIST_NO_ERRORS,
+    LIST_UNABLE_TO_ALLOC
 };
 
 
@@ -20,9 +22,11 @@ struct List {
 	size_t     size;
 	size_t     capacity;
 
-	const char* Find(const char*  elem);
-	int         Insert(const ListElemT* elem);
-	int         CheckAndUpdateCapacity();
+	int        Construct();
+	void       Destruct();
+	ListElemT* Find(const char* c_str);
+	ListElemT* Insert(const ListElemT elem);
+	int        CheckAndUpdateCapacity();
 };
 
 
