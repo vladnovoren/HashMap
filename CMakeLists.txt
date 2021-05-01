@@ -11,7 +11,7 @@ add_subdirectory(List)
 include_directories(include/ ONEGIN_lib/include List/include)
 
 
-add_executable(hash_table src/main.cpp src/hash_table.cpp)
+add_executable(hash_table src/main.cpp src/hash_table.cpp src/dic_parser.cpp)
 
 set(CMAKE_CXX_FLAGS ${FLAGS})
 

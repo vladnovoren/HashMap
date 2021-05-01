@@ -7,7 +7,7 @@
 #include "dic_parser.h"
 
 
-const size_t MAX_WORD_LEN            = 100;
+const size_t MAX_WORD_LEN            = 100000;
 const int    POLYNOMIAL_HASH_P       = 257;
 const size_t DEFAULT_N_BUCKETS       = 2011;
 const size_t DEFAULT_N_ELEMS         = 0;
@@ -37,9 +37,9 @@ struct HashTable {
     void Set(size_t n_elems, size_t n_buckets, double max_load_factor, List*  buckets);
     void Destruct();
 
-    const char* Find(const char* req_word);
-    int         Rehash();
-    int         Insert(const DictionaryElement new_elem);
+    HashTableElemT* Find(const char* req_word);
+    int             Rehash();
+    int             Insert(const HashTableElemT new_elem);
 };
 
 

@@ -18,7 +18,7 @@ int List::CheckAndUpdateCapacity() {
     size_t new_capacity = 0;
     if (this->size * SIZE_CAPACITY_DIFF * SIZE_CAPACITY_DIFF < this->capacity && this->size || this->size == this->capacity) {
         new_capacity        = this->size * SIZE_CAPACITY_DIFF;
-        ListElemT* tmp_data = (ListElemT*)realloc(this->data, new_capacity);
+        ListElemT* tmp_data = (ListElemT*)realloc(this->data, new_capacity * sizeof(ListElemT));
         if (tmp_data) {
             this->data     = tmp_data;
             this->capacity = new_capacity;
