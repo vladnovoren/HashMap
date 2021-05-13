@@ -11,7 +11,7 @@ const size_t MAX_WORD_LEN            = 100000;
 const int    POLYNOMIAL_HASH_P       = 257;
 const size_t DEFAULT_N_BUCKETS       = 2011;
 const size_t DEFAULT_N_ELEMS         = 0;
-const double DEFAULT_MAX_LOAD_FACTOR = 0.95;
+const double DEFAULT_MAX_LOAD_FACTOR = 0.75;
 
 
 enum HashTableStates {

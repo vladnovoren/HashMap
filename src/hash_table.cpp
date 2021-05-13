@@ -24,6 +24,7 @@ HashT GetHash(const char* c_str) {
     return PolynomialHash(c_str);
 }
 
+
 int HashTable::Construct() {
     List* buckets = (List*)calloc(DEFAULT_N_BUCKETS, sizeof(List));
     if (!buckets)

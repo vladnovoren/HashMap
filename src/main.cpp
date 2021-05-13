@@ -18,16 +18,13 @@ int main (int argc, char* argv[]) {
         hash_table.Insert({dic.data[str_num].req_word, dic.data[str_num].translation, 0});
     }
 
-    for (size_t i = 0; i < dic.size; i++) {
-        HashTableElemT* found = hash_table.Find(dic.data[i].req_word);
-//        if (found)
-//            printf("req_word: %s, translation: %s\n", dic.data[i].req_word, found->translation);
-//        else
-//            printf("translation of \"%s\" word not found\n", dic.data[i].req_word);
-    }
+    FILE* csv_file = fopen("../gnuplot/polynomial.csv", "wb");
+    for (size_t bucket_num = 0; bucket_num < hash_table.n_buckets; bucket_num++)
+        fprintf(csv_file, "%zu;%zu\n", bucket_num + 1, hash_table.buckets[bucket_num].size);
 
     dic.Destruct();
     hash_table.Destruct();
+    free(csv_file);
 
 	return 0;
 }

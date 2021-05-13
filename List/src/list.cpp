@@ -6,7 +6,7 @@ ListElemT* List::Find(const char *c_str) {
     assert(c_str);
 
     for (size_t pos = 0; pos < this->size; pos++) {
-        if (c_str == this->data[pos].req_word)
+        if (!strcmp(c_str, this->data[pos].req_word))
             return this->data + pos;
     }
 
