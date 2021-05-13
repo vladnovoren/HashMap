@@ -31,15 +31,16 @@ struct HashTableState {
 struct HashTable {
     size_t         n_elems;
     size_t         n_buckets;
+    double         max_load_factor;
     List*          buckets;
     HashTableState state;
 
     int  Construct();
-    void Set(size_t n_elems, size_t n_buckets, List*  buckets, HashT (*hash_function)(const char*));
+    void Set(size_t n_elems, size_t n_buckets, double max_load_factor, List*  buckets, HashT (*hash_function)(const char*));
     void Destruct();
 
     HashTableElemT* Find(const char* req_word);
-    int             Rehash();
+    int             Rehash(size_t new_n_buckets);
     int             Insert(const HashTableElemT new_elem);
 
     HashT (*GetHash)(const char*);
