@@ -9,6 +9,6 @@ set ylabel "amount of elements in bucket"
 
 set xrange [1:2048]
 
-set title "Polynomial hash"
+set title "Polynomial hash" font "Helvetica Bold, 16"
 
 plot "polynomial.csv" using 1:2 with lines title "polynomial hash"
