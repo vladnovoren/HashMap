@@ -22,9 +22,9 @@ void TestHashFunctions(const char* dic_file_name) {
         hash_table.Insert({dic.data[word_num].req_word, dic.data[word_num].translation, 0});
     }
 
-    for (size_t func_num = 0; func_num < N_FUNCS; func_num++) {
+    for (size_t func_num   = 0; func_num < N_FUNCS; func_num++) {
         hash_table.GetHash = hash_functions[func_num].hash_function;
-        hash_table.Rehash(hash_table.n_buckets);
+        hash_table.Rehash();
         char* csv_full_path = (char*)calloc(32, sizeof(char));
         strcat(csv_full_path, "../gnuplot/");
         strcat(csv_full_path, hash_functions[func_num].file_name);

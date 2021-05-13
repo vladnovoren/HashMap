@@ -6,7 +6,7 @@
 #include "assert.h"
 
 static const size_t N_FUNCS = 6;
-static const size_t N_TESTS = 10000;
+static const size_t N_TESTS = 30000;
 
 struct TestStruct {
     const char* file_name;
