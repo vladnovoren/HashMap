@@ -1,0 +1,12 @@
+#! /usr/bin/gnuplot -persist
+
+set datafile separator ';'
+set terminal png size 1200, 900
+set output "../graphs/ASCII_sum.png"
+
+set xlabel "bucket number"
+set ylabel "amount of elements in bucket"
+
+set title "ASCII sum hash" font "Helvetica Bold, 16"
+
+plot "../gnuplot/ASCII_Sum.csv" using 1:2 with lines title "ASCII sum hash"
