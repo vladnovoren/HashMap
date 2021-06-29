@@ -10,11 +10,17 @@ struct DicElement {
 };
 
 struct Dic {
-    DicElement* data;
-    size_t             size;
-    int Construct(size_t size);
-    void Destruct();
+    StrArr dic_file_buf;
+    DicElement* elems;
+    size_t n_elems;
 };
+
+
+int  DicAlloc(Dic* dic, size_t n_elems);
+
+void DicDestruct(Dic* dic);
+
+Dic ParseDicFile(const char* file_name);
 
 
 static const Dic EMPTY_DIC = {};
@@ -26,7 +32,6 @@ enum DicErros {
 };
 
 
-Dic ParseDicFile(const char* file_name);
 
 
 #endif /* hashtable_dic_parser.h */

@@ -3,52 +3,66 @@
 #include "dic_parser.h"
 
 
-int Dic::Construct(size_t size) {
-    DicElement* data = (DicElement*)calloc(size, sizeof(DicElement));
-    if (!data)
+int DicAlloc(Dic* dic, size_t n_elems) {
+    DicElement* elems = (DicElement*)calloc(n_elems, sizeof(DicElement));
+    if (!elems)
         return DIC_UNABLE_TO_ALLOC;
 
-    this->data = data;
-    this->size = size;
+    dic->elems   = elems;
+    dic->n_elems = n_elems;
 
     return 0;
 }
 
 
-void Dic::Destruct() {
-    free((void*)this->data->req_word);
-    free(this->data);
+void DicDestruct(Dic* dic) {
+    DestructStrArr(&dic->dic_file_buf);
+    free(dic->elems);
 }
 
 
 Dic ParseDicFile(const char* file_name) {
     assert(file_name);
 
-    StrArr str_arr = FileToStrArr(file_name);
-    if (!str_arr.n_strs)
+    StrArr dic_file_buf = FileToStrArr(file_name);
+    if (!dic_file_buf.n_strs)
         return EMPTY_DIC;
 
-    Dic dic = {};
-    if (dic.Construct(str_arr.n_strs))
+    Dic dic = EMPTY_DIC;
+    if (DicAlloc(&dic, dic_file_buf.n_strs))
         return dic;
 
-    for (size_t str_num = 0; str_num < str_arr.n_strs; str_num++) {
-        char* req_word_end = strchr(str_arr.arr[str_num].c_str, '=');
+    bool is_legal_format = true;
+    size_t str_err_num = 0;
+    for (size_t str_num = 0; str_num < dic_file_buf.n_strs; str_num++) {
+        char* req_word_end = strchr(dic_file_buf.arr[str_num].c_str, '=');
         if (!*req_word_end) {
-            printf("dic::\nstr_num %zu: wrong format\n", str_num);
-            return EMPTY_DIC;
+            is_legal_format = false;
+            str_err_num = str_num;
+            break;
         }
+
         char* translation_end = strchr(req_word_end, '\r');
         if (!translation_end) {
-            printf("dic::\nstr_num %zu: wrong format\n", str_num);
-            return EMPTY_DIC;
+            is_legal_format = false;
+            str_err_num = str_num;
+            break;
         }
+
         *translation_end = '\0';
         *req_word_end = '\0';
-        dic.data[str_num].req_word    = str_arr.arr[str_num].c_str;
-        dic.data[str_num].translation = ++req_word_end;
+        dic.elems[str_num].req_word = dic_file_buf.arr[str_num].c_str;
+        dic.elems[str_num].translation = ++req_word_end;
     }
-    free(str_arr.arr);
+
+    if (!is_legal_format) {
+        printf("dic::\nstr_num %zu: wrong format\n", str_err_num + 1);
+        DestructStrArr(&dic_file_buf);
+        return EMPTY_DIC;
+    }
+
+    dic.dic_file_buf = dic_file_buf;
+    dic.n_elems = dic_file_buf.n_strs;
 
     return dic;
 }

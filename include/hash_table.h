@@ -33,14 +33,24 @@ struct HashTable {
     List*          buckets;
     HashTableState state;
 
-    int  Construct();
-    void Set(size_t n_elems, size_t n_buckets, double max_load_factor, List*  buckets);
-    void Destruct();
 
     HashTableElemT* Find(const char* req_word);
     int             Rehash();
     int             Insert(const HashTableElemT new_elem);
 };
+
+
+int            HashTableAlloc();
+
+void           HashTableDestruct();
+
+void           HashTableSet(size_t n_elems, size_t n_buckets, double max_load_factor, List*  buckets);
+
+int            HashTableInsert(const HashTableElemT new_elem);
+
+HashTableElemT HashTableFind(const char* req_word);
+
+int            HashTableRehash();
 
 
 HashT PolynomialHash(const char* c_str);
