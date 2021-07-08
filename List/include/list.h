@@ -1,13 +1,13 @@
 #ifndef LIST_H
 #define LIST_H
 
+#include "common_header.h"
 #include "ONEGIN_lib.h"
-#include "hash_table_structures.h"
 
-
-static const int    SIZE_CAPACITY_DIFF  = 2;
-static const size_t START_LIST_SIZE     = 0;
-static const size_t START_LIST_CAPACITY = 8;
+static const int    LIST_CAPACITY_MUL     = 2;
+static const int    LIST_CAPACITY_CHECK   = 4;
+static const size_t LIST_DEFAULT_SIZE     = 0;
+static const size_t LIST_DEFAULT_CAPACITY = 8;
 
 enum ListStates {
 	LIST_NO_ERRORS,
@@ -15,19 +15,22 @@ enum ListStates {
 };
 
 
-typedef HashTableElemT ListElemT;
-
 struct List {
-	ListElemT* data;
-	size_t     size;
+	ListElemT* elems;
+	size_t     n_elems;
 	size_t     capacity;
-
-	int        Construct();
-	void       Destruct();
-	ListElemT* Find(const char* c_str);
-	ListElemT* Insert(const ListElemT elem);
-	int        CheckAndUpdateCapacity();
 };
+
+
+ListElemT* ListFind(List* list, const char *c_str);
+
+int ListCheckAndUpdateCapacity(List* list);
+
+ListElemT* ListInsert(List* list, const ListElemT elem);
+
+int ListAlloc(List* list);
+
+void ListDestruct(List* list);
 
 
 #endif /* list.h */

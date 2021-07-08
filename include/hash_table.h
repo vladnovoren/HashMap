@@ -1,19 +1,17 @@
-#ifndef HASH_TABLE
-#define HASH_TABLE
+#ifndef HASH_TABLE_H
+#define HASH_TABLE_H
 
 #include "ONEGIN_lib.h"
-#include "list.h"
-#include "hash_table_structures.h"
 #include "dic_parser.h"
+#include "hash_functions.h"
+#include "list.h"
 
-const size_t FNV_OFFSET_BASICS       = 14695981039346656037;
-const size_t FNV_PRIME               = 1099511628211;
-const size_t HASH_CONST              = 12;
-const size_t MAX_WORD_LEN            = 100000;
-const int    POLYNOMIAL_HASH_P       = 257;
-const size_t DEFAULT_N_BUCKETS       = 2011;
-const size_t DEFAULT_N_ELEMS         = 0;
-const double DEFAULT_MAX_LOAD_FACTOR = 0.75;
+
+const size_t HASH_TABLE_DEFAULT_N_BUCKETS                = 2011;
+const size_t HASH_TABLE_DEFAULT_N_ELEMS                  = 0;
+const int    HASH_TABLE_INC_N_ELEMS_MUL                  = 2;
+const int    HASH_TABLE_DEFAULT_MAX_LOAD_FACTOR          = 75;
+HashT (*const HASH_TABLE_DEFAULT_GET_HASH) (const char*) = PolynomialHash;
 
 
 enum HashTableStates {
@@ -22,60 +20,30 @@ enum HashTableStates {
     HASH_TABLE_LIST_ERROR
 };
 
-
-struct HashTableState {
-    int    err_code;
-    size_t broken_list_num;
-};
+typedef size_t HashT;
 
 struct HashTable {
-    size_t         n_elems;
-    size_t         n_buckets;
-    double         max_load_factor;
-    List*          buckets;
-    HashTableState state;
-
-<<<<<<< HEAD
-=======
-    int  Construct();
-    void Set(size_t n_elems, size_t n_buckets, double max_load_factor, List*  buckets, HashT (*hash_function)(const char*));
-    void Destruct();
->>>>>>> 20a61fa764bdd7dbc113b42b459ae53aaadbbf4e
-
-    HashTableElemT* Find(const char* req_word);
-    int             Rehash(size_t new_n_buckets);
-    int             Insert(const HashTableElemT new_elem);
-
-    HashT (*GetHash)(const char*);
+    List*  buckets;
+    size_t n_buckets;
+    size_t n_elems;
+    int max_load_factor;
+    HashT (*get_hash)(const char*);
 };
 
 
-<<<<<<< HEAD
-int            HashTableAlloc();
 
-void           HashTableDestruct();
+int             HashTableAlloc(HashTable* hash_table);
 
-void           HashTableSet(size_t n_elems, size_t n_buckets, double max_load_factor, List*  buckets);
+void            HashTableDestruct(HashTable* hash_table);
 
-int            HashTableInsert(const HashTableElemT new_elem);
+void            HashTableSet(HashTable* hash_table, List* buckets, size_t n_buckets, size_t n_elems, double max_load_factor, HashT (*get_hash)(const char*));
 
-HashTableElemT HashTableFind(const char* req_word);
+int             HashTableInsert(HashTable* hash_table, const HashTableElemT new_elem);
 
-int            HashTableRehash();
+HashTableElemT* HashTableFind(HashTable* hash_table, const char* req_word);
 
+int             HashTableRehash(HashTable* hash_table, size_t new_n_elems);
 
-HashT PolynomialHash(const char* c_str);
-=======
-HashT Constant(const char* c_str);
-
-HashT FirstChar(const char* c_str);
-
-HashT ASCII_Sum(const char* c_str);
-
-HashT Polynomial(const char* c_str);
->>>>>>> 20a61fa764bdd7dbc113b42b459ae53aaadbbf4e
-
-HashT FNVA1a(const char* c_str);
 
 
 #endif /* "hash_table.h" */

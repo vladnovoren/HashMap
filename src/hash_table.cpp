@@ -1,152 +1,111 @@
 #include "hash_table.h"
 
 
-
-HashT Constant(const char* c_str) {
-    assert(c_str);
-
-    return HASH_CONST;
-}
-
-
-HashT FirstChar(const char* c_str) {
-    assert(c_str);
-
-    return *c_str;
-}
-
-
-HashT ASCII_Sum(const char* c_str) {
-    assert(c_str);
-
-    HashT hash = 0;
-    while (*c_str) {
-        hash += *c_str;
-        c_str++;
-    }
-
-    return hash;
-}
-
-
-HashT Polynomial(const char* c_str) {
-    assert(c_str);
-
-	static HashT p_powers[MAX_WORD_LEN] = {};
-	if (!p_powers[0]) {
-		p_powers[0] = 1;
-		for (size_t pos = 1; pos < MAX_WORD_LEN; pos++)
-			p_powers[pos] = p_powers[pos - 1] * POLYNOMIAL_HASH_P;
-	}
-
-	HashT symb_num = 0;
-	HashT hash     = 0;
-	while (c_str[symb_num]) {
-        hash += p_powers[symb_num] * c_str[symb_num];
-        symb_num++;
-    }
-
-	return hash;
-}
-
-
-HashT FNVA1a(const char* c_str) {
-    assert(c_str);
-
-    HashT hash = FNV_OFFSET_BASICS;
-
-    while (*c_str) {
-        hash ^= *c_str;
-        hash *= FNV_PRIME;
-        c_str++;
-    }
-
-    return hash;
-}
-
-
-int HashTable::Construct() {
-    List* buckets = (List*)calloc(DEFAULT_N_BUCKETS, sizeof(List));
-    if (!buckets)
-        return HASH_TABLE_UNABLE_TO_ALLOC;
-
-    this->Set(DEFAULT_N_ELEMS, DEFAULT_N_BUCKETS, DEFAULT_MAX_LOAD_FACTOR, buckets, FNVA1a);
-
-    for (size_t bucket_num = 0; bucket_num < this->n_buckets; bucket_num++) {
-        int construct_res = buckets[bucket_num].Construct();
-        if (construct_res)
-            return HASH_TABLE_LIST_ERROR;
-    }
-
-    return HASH_TABLE_NO_ERRORS;
-}
-
-
-void HashTable::Set(size_t n_elems, size_t n_buckets, double max_load_factor, List*  buckets, HashT (*hash_function)(const char*)) {
-    this->n_elems         = n_elems;
-    this->n_buckets       = n_buckets;
-    this->max_load_factor = max_load_factor;
-    this->buckets         = buckets;
-    this->GetHash         = hash_function;
-}
-
-
-void HashTable::Destruct() {
-    for (size_t bucket_num = 0; bucket_num < this->n_buckets; bucket_num++)
-        this->buckets[bucket_num].Destruct();
-
-    free(this->buckets);
-}
-
-
-HashTableElemT* HashTable::Find(const char* req_word) {
+size_t HashTableGetBucketNum(HashTable* hash_table, const char* req_word) {
+    assert(hash_table);
     assert(req_word);
 
-    HashT pos = this->GetHash(req_word) % this->n_buckets;
-
-    return this->buckets[pos].Find(req_word);
+    return hash_table->get_hash(req_word) % hash_table->n_buckets;
 }
 
 
-int HashTable::Rehash(size_t new_n_buckets) {
+void HashTableSet(HashTable* hash_table, List* buckets, size_t n_buckets, size_t n_elems, double max_load_factor, HashT (*get_hash)(const char*)) {
+    assert(hash_table);
+    assert(get_hash);
+
+    hash_table->buckets = buckets;
+    hash_table->n_buckets = n_buckets;
+    hash_table->n_elems = n_elems;
+    hash_table->max_load_factor = max_load_factor;
+    hash_table->get_hash = get_hash;
+}
+
+
+int HashTableAlloc(HashTable* hash_table) {
+    List* buckets = (List*)calloc(HASH_TABLE_DEFAULT_N_BUCKETS, sizeof(List));
+    assert(buckets);
+
+    int alloc_res = 0;
+    for (size_t bucket_num = 0; bucket_num < HASH_TABLE_DEFAULT_N_BUCKETS; bucket_num++)
+        if ((alloc_res = ListAlloc(buckets + bucket_num)))
+            return alloc_res;
+
+    HashTableSet(hash_table, buckets,
+                             HASH_TABLE_DEFAULT_N_BUCKETS,
+                             HASH_TABLE_DEFAULT_N_ELEMS,
+                             HASH_TABLE_DEFAULT_MAX_LOAD_FACTOR,
+                             HASH_TABLE_DEFAULT_GET_HASH);
+    
+    return 0;
+}
+
+
+void HashTableDestruct(HashTable* hash_table) {
+    assert(hash_table);
+
+    for (size_t bucket_num = 0; bucket_num < hash_table->n_buckets; bucket_num++)
+        ListDestruct(hash_table->buckets + bucket_num);
+    free(hash_table->buckets);
+    *hash_table = {};
+}
+
+
+HashTableElemT* HashTableFind(HashTable* hash_table, const char* req_word) {
+    assert(hash_table);
+    assert(req_word);
+
+    size_t bucket_num = HashTableGetBucketNum(hash_table, req_word);
+    return ListFind(hash_table->buckets + bucket_num, req_word);
+}
+
+
+int HashTableRehash(HashTable* hash_table, size_t new_n_buckets) {
+    assert(hash_table);
+
     List* new_buckets = (List*)calloc(new_n_buckets, sizeof(List));
-    if (!new_buckets)
-        return HASH_TABLE_UNABLE_TO_ALLOC;
+    assert(new_buckets);
 
-    for (size_t bucket_num = 0; bucket_num < new_n_buckets; bucket_num++)
-        if (new_buckets[bucket_num].Construct())
-            return HASH_TABLE_UNABLE_TO_ALLOC;
-
-    for (size_t bucket_num = 0; bucket_num < this->n_buckets; bucket_num++) {
-        for (size_t elem_num = 0; elem_num < this->buckets[bucket_num].size; elem_num++) {
-            HashT new_pos            = this->GetHash(this->buckets[bucket_num].data[elem_num].req_word) % new_n_buckets;
-            HashTableElemT* inserted = new_buckets[new_pos].Insert(this->buckets[bucket_num].data[elem_num]);
-            if (!inserted)
+    size_t new_bucket_num = 0;
+    for (size_t bucket_num = 0; bucket_num < hash_table->n_buckets; bucket_num++) {
+        for (size_t elem_num = 0; elem_num < hash_table->buckets[bucket_num].n_elems; elem_num++) {
+            new_bucket_num = hash_table->buckets[bucket_num].elems[elem_num].hash % new_n_buckets;
+            if (!ListInsert(new_buckets + new_bucket_num, hash_table->buckets[bucket_num].elems[elem_num]))
                 return HASH_TABLE_LIST_ERROR;
         }
     }
 
-    this->Destruct();
-    this->n_buckets = new_n_buckets;
-    this->buckets   = new_buckets;
+    hash_table->buckets   = new_buckets;
+    hash_table->n_buckets = new_n_buckets;
 
     return HASH_TABLE_NO_ERRORS;
 }
 
 
-int HashTable::Insert(const HashTableElemT new_elem) {
-    const HashTableElemT* found = this->Find(new_elem.req_word);
-    if (!found) {
-        if ((double)(this->n_elems + 1) / this->n_buckets > this->max_load_factor) {
-            int rehash_res = this->Rehash(this->n_buckets * 2);
-            if (rehash_res)
-                return rehash_res;
-        }
-        HashT pos = this->GetHash(new_elem.req_word) % this->n_buckets;
-        ListElemT* inserted = this->buckets[pos].Insert(new_elem);
-        if (!inserted)
-            return HASH_TABLE_LIST_ERROR;
-    }
+int HashTableCheckRehash(HashTable* hash_table) {
+    assert(hash_table);
 
+    if (hash_table->n_elems * 100 > hash_table->n_buckets * hash_table->max_load_factor)
+        return HashTableRehash(hash_table, hash_table->n_elems * HASH_TABLE_INC_N_ELEMS_MUL);
+    
+    return HASH_TABLE_NO_ERRORS;
+}
+
+
+int HashTableInsert(HashTable* hash_table, const HashTableElemT new_elem) {
+    assert(hash_table);
+
+    HashTableElemT* found = HashTableFind(hash_table, new_elem.req_word);
+    if (found)
+        return HASH_TABLE_NO_ERRORS;
+
+    ++hash_table->n_elems;
+    int check_rehash_res = HashTableCheckRehash(hash_table);
+    if (check_rehash_res != HASH_TABLE_NO_ERRORS)
+        return check_rehash_res;
+
+    size_t bucket_num = HashTableGetBucketNum(hash_table, new_elem.req_word);
+    if (!ListInsert(hash_table->buckets + bucket_num, new_elem))
+        return HASH_TABLE_LIST_ERROR;
+    
     return HASH_TABLE_NO_ERRORS;
 }

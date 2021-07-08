@@ -2,26 +2,27 @@
 
 
 
-ListElemT* List::Find(const char *c_str) {
+ListElemT* ListFind(List* list, const char *c_str) {
+    assert(list);
     assert(c_str);
 
-    for (size_t pos = 0; pos < this->size; pos++) {
-        if (!strcmp(c_str, this->data[pos].req_word))
-            return this->data + pos;
+    for (size_t pos = 0; pos < list->n_elems; pos++) {
+        if (!strcmp(c_str, list->elems[pos].req_word))
+            return list->elems + pos;
     }
-
+   
     return nullptr;
 }
 
 
-int List::CheckAndUpdateCapacity() {
+int ListCheckAndUpdateCapacity(List* list) {
     size_t new_capacity = 0;
-    if (this->size * SIZE_CAPACITY_DIFF * SIZE_CAPACITY_DIFF < this->capacity && this->size || this->size == this->capacity) {
-        new_capacity        = this->size * SIZE_CAPACITY_DIFF;
-        ListElemT* tmp_data = (ListElemT*)realloc(this->data, new_capacity * sizeof(ListElemT));
-        if (tmp_data) {
-            this->data     = tmp_data;
-            this->capacity = new_capacity;
+    if (list->n_elems * LIST_CAPACITY_CHECK < list->capacity && list->n_elems || list->n_elems == list->capacity) {
+        new_capacity = list->n_elems * LIST_CAPACITY_MUL;
+        ListElemT* tmp_elems = (ListElemT*)realloc(list->elems, new_capacity * sizeof(ListElemT));
+        if (tmp_elems) {
+            list->elems    = tmp_elems;
+            list->capacity = new_capacity;
         } else
             return LIST_UNABLE_TO_ALLOC;
     }
@@ -30,35 +31,36 @@ int List::CheckAndUpdateCapacity() {
 }
 
 
-ListElemT* List::Insert(const ListElemT elem) {
-	ListElemT* found = this->Find(elem.req_word);
+ListElemT* ListInsert(List* list, const ListElemT elem) {
+    assert(list);
+
+	ListElemT* found = ListFind(list, elem.req_word);
 	if (found)
         return found;
 
-    if (this->CheckAndUpdateCapacity())
+    if (ListCheckAndUpdateCapacity(list))
         return nullptr;
 
-	this->data[this->size] = elem;
+	list->elems[list->n_elems] = elem;
 
-	return this->data + this->size++;
+	return list->elems + list->n_elems++;
 }
 
 
-int List::Construct() {
-    ListElemT* data = (ListElemT*)calloc(START_LIST_CAPACITY, sizeof(ListElemT));
-    if (!data)
+int ListAlloc(List* list) {
+    ListElemT* elems = (ListElemT*)calloc(LIST_DEFAULT_CAPACITY, sizeof(ListElemT));
+    if (!elems)
         return LIST_UNABLE_TO_ALLOC;
 
-    this->size     = START_LIST_SIZE;
-    this->capacity = START_LIST_CAPACITY;
-    this->data     = data;
+    list->elems    = elems;
+    list->n_elems  = LIST_DEFAULT_SIZE;
+    list->capacity = LIST_DEFAULT_CAPACITY;
 
     return 0;
 }
 
 
-void List::Destruct() {
-    free(this->data);
-    this->capacity = 0;
-    this->size     = 0;
+void ListDestruct(List* list) {
+    free(list->elems);
+    *list = {};
 }

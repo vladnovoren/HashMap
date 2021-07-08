@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "test_hash_functions.h"
+
+#include "test_hash_table.h"
+
 
 
 int main (int argc, char* argv[]) {
@@ -9,7 +11,7 @@ int main (int argc, char* argv[]) {
         return 1;
     }
 
-    TestHashFunctions(argv[1]);
+    TestHashTable(argv[1]);
 
 	return 0;
 }

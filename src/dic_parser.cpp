@@ -1,5 +1,4 @@
 #include "ONEGIN_lib.h"
-#include "hash_table_structures.h"
 #include "dic_parser.h"
 
 
