@@ -2,7 +2,7 @@
 #define COMMON_HEADER_H
 
 
-#include <ctype.h>
+#include <cstddef>
 
 typedef size_t HashT;
 

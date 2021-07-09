@@ -32,17 +32,24 @@ struct HashTable {
 
 
 
-int             HashTableAlloc(HashTable* hash_table);
+inline size_t HashTableGetBucketNum(HashTable* hash_table, const HashT hash);
 
-void            HashTableDestruct(HashTable* hash_table);
+void HashTableSet(HashTable* hash_table, List* buckets, size_t n_buckets, size_t n_elems, double max_load_factor, HashT (*get_hash)(const char*));
 
-void            HashTableSet(HashTable* hash_table, List* buckets, size_t n_buckets, size_t n_elems, double max_load_factor, HashT (*get_hash)(const char*));
+int HashTableAlloc(HashTable* hash_table);
 
-int             HashTableInsert(HashTable* hash_table, const HashTableElemT new_elem);
+void HashTableDestruct(HashTable* hash_table);
+
+HashTableElemT* HashTableFind(HashTable* hash_table, const HashTableElemT elem);
 
 HashTableElemT* HashTableFind(HashTable* hash_table, const char* req_word);
 
-int             HashTableRehash(HashTable* hash_table, size_t new_n_elems);
+int HashTableRehash(HashTable* hash_table, size_t new_n_buckets);
+
+inline int HashTableCheckRehash(HashTable* hash_table, size_t new_n_elems);
+
+int HashTableInsert(HashTable* hash_table, const DicElement new_elem);
+
 
 
 

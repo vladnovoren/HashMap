@@ -34,16 +34,13 @@ int ListCheckAndUpdateCapacity(List* list) {
 ListElemT* ListInsert(List* list, const ListElemT elem) {
     assert(list);
 
-	ListElemT* found = ListFind(list, elem.req_word);
-	if (found)
-        return found;
-
+    list->n_elems++;
     if (ListCheckAndUpdateCapacity(list))
         return nullptr;
+    
+    list->elems[list->n_elems - 1] = elem;
 
-	list->elems[list->n_elems] = elem;
-
-	return list->elems + list->n_elems++;
+	return list->elems + list->n_elems - 1;
 }
 
 
