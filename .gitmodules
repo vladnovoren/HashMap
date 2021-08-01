@@ -1,3 +1,6 @@
 [submodule "ONEGIN_lib"]
 	path = ONEGIN_lib
 	url = https://github.com/vladnovoren/ONEGIN_lib
+[submodule "List"]
+	path = List
+	url = https://github.com/vladnovoren/List

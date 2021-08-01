@@ -9,18 +9,18 @@ struct DicElement {
     const char* translation;
 };
 
-struct Dic {
-    StrArr dic_file_buf;
+struct DicBuf {
+    StrArr      dic_file_buf;
     DicElement* elems;
-    size_t n_elems;
+    size_t      n_elems;
 };
 
 
-int  DicAlloc(Dic* dic, size_t n_elems);
+int    DicBuf_Alloc(DicBuf* dic, size_t n_elems);
 
-void DicDestruct(Dic* dic);
+void   DicBuf_Destruct(DicBuf* dic);
 
-Dic ParseDicFile(const char* file_name);
+DicBuf DicBuf_ParseDicFile(const char* file_name);
 
 
 static const Dic EMPTY_DIC = {};
