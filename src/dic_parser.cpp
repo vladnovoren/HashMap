@@ -2,10 +2,10 @@
 #include "dic_parser.h"
 
 
-int DicAlloc(Dic* dic, size_t n_elems) {
+int DicBuf_Alloc(DicBuf* dic, size_t n_elems) {
     DicElement* elems = (DicElement*)calloc(n_elems, sizeof(DicElement));
     if (!elems)
-        return DIC_UNABLE_TO_ALLOC;
+        return DIC_BUF_UNABLE_TO_ALLOC;
 
     dic->elems   = elems;
     dic->n_elems = n_elems;
@@ -14,21 +14,21 @@ int DicAlloc(Dic* dic, size_t n_elems) {
 }
 
 
-void DicDestruct(Dic* dic) {
+void DicBuf_Destruct(DicBuf* dic) {
     DestructStrArr(&dic->dic_file_buf);
     free(dic->elems);
 }
 
 
-Dic ParseDicFile(const char* file_name) {
+DicBuf DicBuf_ParseDicFile(const char* file_name) {
     assert(file_name);
 
     StrArr dic_file_buf = FileToStrArr(file_name);
     if (!dic_file_buf.n_strs)
-        return EMPTY_DIC;
+        return EMPTY_DIC_BUF;
 
-    Dic dic = EMPTY_DIC;
-    if (DicAlloc(&dic, dic_file_buf.n_strs))
+    DicBuf dic = EMPTY_DIC_BUF;
+    if (DicBuf_Alloc(&dic, dic_file_buf.n_strs))
         return dic;
 
     bool is_legal_format = true;
@@ -57,7 +57,7 @@ Dic ParseDicFile(const char* file_name) {
     if (!is_legal_format) {
         printf("dic::\nstr_num %zu: wrong format\n", str_err_num + 1);
         DestructStrArr(&dic_file_buf);
-        return EMPTY_DIC;
+        return EMPTY_DIC_BUF;
     }
 
     dic.dic_file_buf = dic_file_buf;

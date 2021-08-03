@@ -2,19 +2,14 @@
 
 
 
-void OutListElem(const ListElemT elem) {
-    printf("word: %s, translation: %s\n", elem.req_word, elem.translation);
-}
-
-
-inline size_t HashTableGetBucketNum(HashTable* hash_table, const HashT hash) {
+inline size_t HashTable_GetBucketNum(HashTable* hash_table, const HashT hash) {
     assert(hash_table);
 
     return hash % hash_table->n_buckets;
 }
 
 
-void HashTableSet(HashTable* hash_table, List* buckets, size_t n_buckets, size_t n_elems, double max_load_factor, HashT (*get_hash)(const char*)) {
+void HashTable_Set(HashTable* hash_table, List* buckets, size_t n_buckets, size_t n_elems, double max_load_factor, HashT (*get_hash)(const char*)) {
     assert(hash_table);
     assert(get_hash);
 
@@ -26,40 +21,40 @@ void HashTableSet(HashTable* hash_table, List* buckets, size_t n_buckets, size_t
 }
 
 
-int HashTableAlloc(HashTable* hash_table) {
+int HashTable_Alloc(HashTable* hash_table) {
     List* buckets = (List*)calloc(HASH_TABLE_DEFAULT_N_BUCKETS, sizeof(List));
     assert(buckets);
 
     int alloc_res = 0;
     for (size_t bucket_num = 0; bucket_num < HASH_TABLE_DEFAULT_N_BUCKETS; bucket_num++)
-        if ((alloc_res = ListAlloc(buckets + bucket_num)))
+        if ((alloc_res = List_Alloc(buckets + bucket_num)))
             return alloc_res;
 
-    HashTableSet(hash_table, buckets,
-                             HASH_TABLE_DEFAULT_N_BUCKETS,
-                             HASH_TABLE_DEFAULT_N_ELEMS,
-                             HASH_TABLE_DEFAULT_MAX_LOAD_FACTOR,
-                             HASH_TABLE_DEFAULT_GET_HASH);
+    HashTable_Set(hash_table, buckets,
+                              HASH_TABLE_DEFAULT_N_BUCKETS,
+                              HASH_TABLE_DEFAULT_N_ELEMS,
+                              HASH_TABLE_DEFAULT_MAX_LOAD_FACTOR,
+                              HASH_TABLE_DEFAULT_GET_HASH);
     
     return 0;
 }
 
 
-void HashTableDestruct(HashTable* hash_table) {
+void HashTable_Destruct(HashTable* hash_table) {
     assert(hash_table);
 
     for (size_t bucket_num = 0; bucket_num < hash_table->n_buckets; bucket_num++)
-        ListDestruct(hash_table->buckets + bucket_num);
+        List_Destruct(hash_table->buckets + bucket_num);
     free(hash_table->buckets);
     *hash_table = {};
 }
 
 
-HashTableElemT* HashTableFind(HashTable* hash_table, const HashTableElemT elem) {
+HashTableElemT* HashTable_Find(HashTable* hash_table, const HashTableElemT elem) {
     assert(hash_table);
 
-    size_t bucket_num = HashTableGetBucketNum(hash_table, elem.hash);
-    return ListFind(hash_table->buckets + bucket_num, elem.req_word);
+    size_t bucket_num = HashTable_GetBucketNum(hash_table, elem.hash);
+    return List_Find(hash_table->buckets + bucket_num, elem.req_word);
 }
 
 
@@ -67,7 +62,7 @@ HashTableElemT* HashTableFind(HashTable* hash_table, const char* req_word) {
     assert(hash_table);
     assert(req_word);
 
-    size_t bucket_num = HashTableGetBucketNum(hash_table, hash_table->get_hash(req_word));
+    size_t bucket_num = HashTable_GetBucketNum(hash_table, hash_table->get_hash(req_word));
     return ListFind(hash_table->buckets + bucket_num, req_word);
 }
 

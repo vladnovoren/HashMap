@@ -23,14 +23,13 @@ void   DicBuf_Destruct(DicBuf* dic);
 DicBuf DicBuf_ParseDicFile(const char* file_name);
 
 
-static const Dic EMPTY_DIC = {};
+static const DicBuf EMPTY_DIC_BUF = {};
 
-enum DicErros {
-    DIC_NO_ERRORS,
-    DIC_UNABLE_TO_ALLOC,
-    DIC_WRONG_FORMAT
+enum DicBufErros {
+    DIC_BUF_NO_ERRORS,
+    DIC_BUF_UNABLE_TO_ALLOC,
+    DIC_BUF_WRONG_FORMAT
 };
-
 
 
 
