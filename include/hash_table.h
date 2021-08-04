@@ -4,6 +4,7 @@
 #include "ONEGIN_lib.h"
 #include "dic_parser.h"
 #include "hash_functions.h"
+#include "common_header.h"
 #include "list.h"
 
 
@@ -11,7 +12,7 @@ const size_t  HASH_TABLE_DEFAULT_N_BUCKETS               = 2011;
 const size_t  HASH_TABLE_DEFAULT_N_ELEMS                 = 0;
 const int     HASH_TABLE_INC_N_ELEMS_MUL                 = 2;
 const int     HASH_TABLE_DEFAULT_MAX_LOAD_FACTOR         = 75;
-HashT (*const HASH_TABLE_DEFAULT_GET_HASH) (const char*) = PolynomialHash;
+HashT (*const HASH_TABLE_DEFAULT_GET_HASH) (const char*) = FNVA1aHash;
 
 
 enum HashTable_States {
@@ -46,7 +47,7 @@ HashTableElemT HashTable_Find(HashTable* hash_table, const char* req_word);
 
 int            HashTable_Rehash(HashTable* hash_table, size_t new_n_buckets);
 
-inline int     HashTable_CheckRehash(HashTable* hash_table, size_t new_n_elems);
+inline int     HashTable_CheckRehash(HashTable* hash_table);
 
 int            HashTable_Insert(HashTable* hash_table, const DicElement new_elem);
 

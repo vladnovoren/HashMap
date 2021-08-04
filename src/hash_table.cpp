@@ -2,6 +2,22 @@
 
 
 
+bool operator==(const ListElemT& first, const ListElemT& second) {
+    if (!first.req_word || !second.req_word)
+        return !first.req_word && !second.req_word;
+
+    if (!strcmp(first.req_word, second.req_word))
+        return true;
+    else
+        return false;
+}
+
+
+bool operator!=(const ListElemT& first, const ListElemT& second) {
+    return !(first == second);
+}
+
+
 size_t HashTable_GetBucketNum(HashTable* hash_table, const HashT hash) {
     assert(hash_table);
 
@@ -54,16 +70,12 @@ HashTableElemT HashTable_Find(HashTable* hash_table, const HashTableElemT elem) 
     assert(hash_table);
 
     size_t bucket_num = HashTable_GetBucketNum(hash_table, elem.hash);
-    return List_Find(hash_table->buckets + bucket_num, elem.req_word);
+    return List_Find(hash_table->buckets + bucket_num, elem);
 }
 
 
 HashTableElemT HashTable_Find(HashTable* hash_table, const char* req_word) {
-    assert(hash_table);
-    assert(req_word);
-
-    size_t bucket_num = HashTable_GetBucketNum(hash_table, hash_table->get_hash(req_word));
-    return List_Find(hash_table->buckets + bucket_num, req_word);
+    return HashTable_Find(hash_table, {req_word, nullptr, hash_table->get_hash(req_word)});
 }
 
 
@@ -80,16 +92,16 @@ int HashTable_Rehash(HashTable* hash_table, size_t new_n_buckets) {
             return alloc_res;
 
     size_t new_bucket_num = 0;
-    for (size_t old_bucket_num = 0; old_bucket_num < hash_table->n_buckets; old_bucket_num++) {
-        for (size_t old_elem_num = 0; old_elem_num < hash_table->buckets[old_bucket_num].n_elems; old_elem_num++) {
-            new_bucket_num = HashTable_GetBucketNum(hash_table, hash_table->buckets[old_bucket_num].elems[old_elem_num].hash);
-            if (List_Insert(new_buckets + new_bucket_num, hash_table->buckets[old_bucket_num].elems[old_elem_num]) != LIST_NO_ERRORS)
+    for (size_t old_bucket_num = 0; old_bucket_num < hash_table->n_buckets; ++old_bucket_num) {
+        for (size_t phys_id = hash_table->buckets[old_bucket_num].head_phys_id; phys_id != LIST_INVALID_ID; phys_id = hash_table->buckets[old_bucket_num].elems[phys_id].next_phys_id) {
+            new_bucket_num = hash_table->buckets[old_bucket_num].elems[phys_id].data.hash % new_n_buckets;
+            if (List_PushBack(new_buckets + new_bucket_num, hash_table->buckets[old_bucket_num].elems[phys_id].data) != LIST_NO_ERRORS)
                 return HASH_TABLE_LIST_ERROR;
         }
     }
 
     HashTable old_hash_table = *hash_table;
-    HashTableDestruct(hash_table);
+    HashTable_Destruct(hash_table);
     *hash_table = old_hash_table;
     hash_table->buckets   = new_buckets;
     hash_table->n_buckets = new_n_buckets;
@@ -98,31 +110,31 @@ int HashTable_Rehash(HashTable* hash_table, size_t new_n_buckets) {
 }
 
 
-int HashTableCheckRehash(HashTable* hash_table, size_t new_n_elems) {
+int HashTable_CheckRehash(HashTable* hash_table) {
     assert(hash_table);
 
-    if (new_n_elems * 100 > hash_table->n_buckets * hash_table->max_load_factor)
-        return HashTableRehash(hash_table, new_n_elems * HASH_TABLE_INC_N_ELEMS_MUL);
+    if (hash_table->n_elems * 100 > hash_table->n_buckets * hash_table->max_load_factor)
+        return HashTable_Rehash(hash_table, hash_table->n_elems * HASH_TABLE_INC_N_ELEMS_MUL);
 
     return HASH_TABLE_NO_ERRORS;
 }
 
 
-int HashTableInsert(HashTable* hash_table, const DicElement new_elem) {
+int HashTable_Insert(HashTable* hash_table, const DicElement new_elem) {
     assert(hash_table);
 
     HashTableElemT new_hash_table_elem = {new_elem.req_word, new_elem.translation, hash_table->get_hash(new_elem.req_word)};
-    HashTableElemT* found = HashTableFind(hash_table, new_hash_table_elem);
-    if (found)
+    HashTableElemT found = HashTable_Find(hash_table, new_hash_table_elem);
+    if (found != EMPTY_LIST_ELEM)
         return HASH_TABLE_NO_ERRORS;
 
-    int check_rehash_res = HashTableCheckRehash(hash_table, hash_table->n_elems + 1);
+    int check_rehash_res = HashTable_CheckRehash(hash_table);
     if (check_rehash_res != HASH_TABLE_NO_ERRORS)
         return check_rehash_res;
     ++hash_table->n_elems;
 
-    size_t bucket_num = HashTableGetBucketNum(hash_table, new_hash_table_elem.hash);
-    if (!ListInsert(hash_table->buckets + bucket_num, new_hash_table_elem))
+    size_t bucket_num = HashTable_GetBucketNum(hash_table, new_hash_table_elem.hash);
+    if (List_PushBack(hash_table->buckets + bucket_num, new_hash_table_elem) != LIST_NO_ERRORS)
         return HASH_TABLE_LIST_ERROR;
     
     return HASH_TABLE_NO_ERRORS;
