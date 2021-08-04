@@ -50,7 +50,7 @@ void HashTable_Destruct(HashTable* hash_table) {
 }
 
 
-HashTableElemT* HashTable_Find(HashTable* hash_table, const HashTableElemT elem) {
+HashTableElemT HashTable_Find(HashTable* hash_table, const HashTableElemT elem) {
     assert(hash_table);
 
     size_t bucket_num = HashTable_GetBucketNum(hash_table, elem.hash);
@@ -58,7 +58,7 @@ HashTableElemT* HashTable_Find(HashTable* hash_table, const HashTableElemT elem)
 }
 
 
-HashTableElemT* HashTable_Find(HashTable* hash_table, const char* req_word) {
+HashTableElemT HashTable_Find(HashTable* hash_table, const char* req_word) {
     assert(hash_table);
     assert(req_word);
 
@@ -98,7 +98,7 @@ int HashTable_Rehash(HashTable* hash_table, size_t new_n_buckets) {
 }
 
 
-inline int HashTableCheckRehash(HashTable* hash_table, size_t new_n_elems) {
+int HashTableCheckRehash(HashTable* hash_table, size_t new_n_elems) {
     assert(hash_table);
 
     if (new_n_elems * 100 > hash_table->n_buckets * hash_table->max_load_factor)
