@@ -1,5 +1,5 @@
-#ifndef HASHTABLE_DIC_PARSER_H
-#define HASHTABLE_DIC_PARSER_H
+#ifndef DIC_PARSER_H
+#define DIC_PARSER_H
 
 #include "ONEGIN_lib.h"
 
@@ -33,4 +33,4 @@ enum DicBufErros {
 
 
 
-#endif /* hashtable_dic_parser.h */
+#endif /* dic_parser.h */

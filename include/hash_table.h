@@ -32,7 +32,7 @@ struct HashTable {
 
 
 
-inline size_t   HashTable_GetBucketNum(HashTable* hash_table, const HashT hash);
+size_t          HashTable_GetBucketNum(HashTable* hash_table, const HashT hash);
 
 void            HashTable_Set(HashTable* hash_table, List* buckets, size_t n_buckets, size_t n_elems, double max_load_factor, HashT (*get_hash)(const char*));
 

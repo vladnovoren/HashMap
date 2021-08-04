@@ -2,7 +2,7 @@
 
 
 
-inline size_t HashTable_GetBucketNum(HashTable* hash_table, const HashT hash) {
+size_t HashTable_GetBucketNum(HashTable* hash_table, const HashT hash) {
     assert(hash_table);
 
     return hash % hash_table->n_buckets;
@@ -58,12 +58,12 @@ HashTableElemT* HashTable_Find(HashTable* hash_table, const HashTableElemT elem)
 }
 
 
-HashTableElemT* HashTableFind(HashTable* hash_table, const char* req_word) {
+HashTableElemT* HashTable_Find(HashTable* hash_table, const char* req_word) {
     assert(hash_table);
     assert(req_word);
 
     size_t bucket_num = HashTable_GetBucketNum(hash_table, hash_table->get_hash(req_word));
-    return ListFind(hash_table->buckets + bucket_num, req_word);
+    return List_Find(hash_table->buckets + bucket_num, req_word);
 }
 
 
