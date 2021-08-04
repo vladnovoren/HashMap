@@ -2,11 +2,11 @@
 
 set datafile separator ';'
 set terminal png size 1200, 900
-set output "../graphs/fnva1a.png"
+set output "../graphs/FNVA1aHash.png"
 
 set xlabel "bucket number"
 set ylabel "amount of elements in bucket"
 
 set title "FNVA1a hash" font "Helvetica Bold, 16"
 
-plot "../gnuplot/FNVA1a.csv" using 1:2 with lines title "FNVA1a hash"
+plot "../gnuplot/FNVA1aHash.csv" using 1:2 with lines title "FNVA1a hash"
