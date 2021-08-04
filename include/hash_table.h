@@ -16,7 +16,7 @@ HashT (*const HASH_TABLE_DEFAULT_GET_HASH) (const char*) = PolynomialHash;
 
 enum HashTable_States {
     HASH_TABLE_NO_ERRORS,
-    HASH_TABLE_UNABLE_TO_ALLOC,
+    HASH_TABLE_ALLOC_ERROR,
     HASH_TABLE_LIST_ERROR
 };
 

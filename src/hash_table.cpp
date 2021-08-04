@@ -67,21 +67,23 @@ HashTableElemT* HashTable_Find(HashTable* hash_table, const char* req_word) {
 }
 
 
-int HashTableRehash(HashTable* hash_table, size_t new_n_buckets) {
+int HashTable_Rehash(HashTable* hash_table, size_t new_n_buckets) {
     assert(hash_table);
 
     List* new_buckets = (List*)calloc(new_n_buckets, sizeof(List));
-    assert(new_buckets);
+    if (!new_buckets)
+        return HASH_TABLE_ALLOC_ERROR;
+
     int alloc_res = 0;
     for (size_t bucket_num = 0; bucket_num < new_n_buckets; bucket_num++)
-        if ((alloc_res = ListAlloc(new_buckets + bucket_num)))
+        if ((alloc_res = List_Alloc(new_buckets + bucket_num)) != LIST_NO_ERRORS)
             return alloc_res;
 
     size_t new_bucket_num = 0;
     for (size_t old_bucket_num = 0; old_bucket_num < hash_table->n_buckets; old_bucket_num++) {
         for (size_t old_elem_num = 0; old_elem_num < hash_table->buckets[old_bucket_num].n_elems; old_elem_num++) {
-            new_bucket_num = hash_table->buckets[old_bucket_num].elems[old_elem_num].hash % new_n_buckets;
-            if (!ListInsert(new_buckets + new_bucket_num, hash_table->buckets[old_bucket_num].elems[old_elem_num]))
+            new_bucket_num = HashTable_GetBucketNum(hash_table, hash_table->buckets[old_bucket_num].elems[old_elem_num].hash);
+            if (List_Insert(new_buckets + new_bucket_num, hash_table->buckets[old_bucket_num].elems[old_elem_num]) != LIST_NO_ERRORS)
                 return HASH_TABLE_LIST_ERROR;
         }
     }

@@ -3,6 +3,7 @@
 
 
 #include <cstddef>
+#include <cstring>
 
 typedef size_t HashT;
 
@@ -13,6 +14,13 @@ struct HashTableElemT {
 };
 
 typedef HashTableElemT ListElemT;
+
+bool operator== (const ListElemT& first, const ListElemT& second) {
+    if (first.hash == second.hash && !strcmp(first.req_word, second.req_word) && !strcmp(first.translation, second.translation))
+        return true;
+    else
+        return false;
+}
 
 
 #endif /* common_header.h */
