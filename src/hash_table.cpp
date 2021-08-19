@@ -25,7 +25,9 @@ size_t HashTable_GetBucketNum(HashTable* hash_table, const HashT hash) {
 }
 
 
-void HashTable_Set(HashTable* hash_table, List* buckets, size_t n_buckets, size_t n_elems, double max_load_factor, HashT (*get_hash)(const char*), bool rehash_required) {
+void HashTable_Set(HashTable* hash_table, List* buckets, size_t n_buckets,
+                   size_t n_elems, double max_load_factor,
+                   HashT (*get_hash)(const char*), bool rehash_required) {
     assert(hash_table);
     assert(get_hash);
 
@@ -97,7 +99,8 @@ int HashTable_Rehash(HashTable* hash_table, size_t new_n_buckets) {
     List   old_bucket = {};
     for (size_t old_bucket_num = 0; old_bucket_num < hash_table->n_buckets; ++old_bucket_num) {
         old_bucket = hash_table->buckets[old_bucket_num];
-        for (size_t phys_id = old_bucket.head_phys_id; phys_id != LIST_INVALID_ID; phys_id = List_GetNextPhysId(&old_bucket, phys_id)) {
+        for (size_t phys_id = old_bucket.head_phys_id; phys_id != LIST_INVALID_ID;
+             phys_id = List_GetNextPhysId(&old_bucket, phys_id)) {
             new_bucket_num = old_bucket.elems[phys_id].data.hash % new_n_buckets;
             if (List_PushBack(new_buckets + new_bucket_num, old_bucket.elems[phys_id].data) != LIST_NO_ERRORS)
                 return HASH_TABLE_LIST_ERROR;
