@@ -67,15 +67,16 @@ void HashTable_Destruct(HashTable* hash_table) {
 }
 
 
-HashTableElemT HashTable_Find(HashTable* hash_table, const HashTableElemT elem) {
+HashTableElemLoc HashTable_Find(HashTable* hash_table, const HashTableElemT elem) {
     assert(hash_table);
 
-    size_t bucket_num = HashTable_GetBucketNum(hash_table, elem.hash);
-    return List_Find(hash_table->buckets + bucket_num, elem);
+    size_t bucket_num   = HashTable_GetBucketNum(hash_table, elem.hash);
+    size_t list_phys_id = List_Find(hash_table->buckets + bucket_num, elem);
+    return {bucket_num, list_phys_id};
 }
 
 
-HashTableElemT HashTable_Find(HashTable* hash_table, const char* req_word) {
+HashTableElemLoc HashTable_Find(HashTable* hash_table, const char* req_word) {
     return HashTable_Find(hash_table, {req_word, nullptr, hash_table->get_hash(req_word)});
 }
 
@@ -93,10 +94,12 @@ int HashTable_Rehash(HashTable* hash_table, size_t new_n_buckets) {
             return alloc_res;
 
     size_t new_bucket_num = 0;
+    List   old_bucket = {};
     for (size_t old_bucket_num = 0; old_bucket_num < hash_table->n_buckets; ++old_bucket_num) {
-        for (size_t phys_id = hash_table->buckets[old_bucket_num].head_phys_id; phys_id != LIST_INVALID_ID; phys_id = hash_table->buckets[old_bucket_num].elems[phys_id].next_phys_id) {
-            new_bucket_num = hash_table->buckets[old_bucket_num].elems[phys_id].data.hash % new_n_buckets;
-            if (List_PushBack(new_buckets + new_bucket_num, hash_table->buckets[old_bucket_num].elems[phys_id].data) != LIST_NO_ERRORS)
+        old_bucket = hash_table->buckets[old_bucket_num];
+        for (size_t phys_id = old_bucket.head_phys_id; phys_id != LIST_INVALID_ID; phys_id = List_GetNextPhysId(&old_bucket, phys_id)) {
+            new_bucket_num = old_bucket.elems[phys_id].data.hash % new_n_buckets;
+            if (List_PushBack(new_buckets + new_bucket_num, old_bucket.elems[phys_id].data) != LIST_NO_ERRORS)
                 return HASH_TABLE_LIST_ERROR;
         }
     }
@@ -121,17 +124,9 @@ int HashTable_CheckRehash(HashTable* hash_table) {
 }
 
 
-int HashTable_ForceInsert(HashTable* hash_table, const DicElement new_elem) {
-    assert(hash_table);
-
-    HashTableElemT new_hash_table_elem = {new_elem.req_word, new_elem.translation, hash_table->get_hash(new_elem.req_word)};
-    ++hash_table->n_elems;
-
-    size_t bucket_num = HashTable_GetBucketNum(hash_table, new_hash_table_elem.hash);
-    if (List_PushBack(hash_table->buckets + bucket_num, new_hash_table_elem) != LIST_NO_ERRORS)
-        return HASH_TABLE_LIST_ERROR;
-    
-    return HASH_TABLE_NO_ERRORS;
+bool HashTable_IsValidLoc(const HashTableElemLoc* loc) {
+    assert(loc);
+    return loc->list_phys_id != LIST_INVALID_ID;
 }
 
 
@@ -139,8 +134,8 @@ int HashTable_Insert(HashTable* hash_table, const DicElement new_elem) {
     assert(hash_table);
 
     HashTableElemT new_hash_table_elem = {new_elem.req_word, new_elem.translation, hash_table->get_hash(new_elem.req_word)};
-    HashTableElemT found = HashTable_Find(hash_table, new_hash_table_elem);
-    if (found != EMPTY_LIST_ELEM)
+    HashTableElemLoc found_loc = HashTable_Find(hash_table, new_hash_table_elem);
+    if (HashTable_IsValidLoc(&found_loc))
         return HASH_TABLE_NO_ERRORS;
 
     if (hash_table->rehash_required) {
@@ -153,6 +148,24 @@ int HashTable_Insert(HashTable* hash_table, const DicElement new_elem) {
     size_t bucket_num = HashTable_GetBucketNum(hash_table, new_hash_table_elem.hash);
     if (List_PushBack(hash_table->buckets + bucket_num, new_hash_table_elem) != LIST_NO_ERRORS)
         return HASH_TABLE_LIST_ERROR;
-    
+
     return HASH_TABLE_NO_ERRORS;
+}
+
+
+int HashTable_Erase(HashTable* hash_table, const HashTableElemLoc* loc) {
+    assert(hash_table);
+
+    return List_EraseByPhysId(hash_table->buckets + loc->bucket_num, loc->list_phys_id);
+}
+
+
+int HashTable_Erase(HashTable* hash_table, const DicElement elem) {
+    assert(hash_table);
+
+    HashTableElemLoc found_loc = HashTable_Find(hash_table, elem.req_word);
+    if (HashTable_IsValidLoc(&found_loc))
+        return HASH_TABLE_NO_ERRORS;
+    else
+        return HashTable_Erase(hash_table, &found_loc);
 }

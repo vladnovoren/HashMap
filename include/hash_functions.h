@@ -103,11 +103,11 @@ HashT Crc32Hash(const char* c_str);
 
 
 const HashFunctionInfo HASH_FUNCTIONS_INFO[N_FUNCTIONS] = {
-    {ConstantHash, "ConstantHash"},
-    {FirstCharHash, "FirstCharHash"},
-    {ASCII_SumHash, "ASCII_SumHash"},
+    {Crc32Hash, "Crc32Hash"},
     {RolHash, "RolHash"},
-    {Crc32Hash, "Crc32Hash"}
+    {ASCII_SumHash, "ASCII_SumHash"},
+    {FirstCharHash, "FirstCharHash"},
+    {ConstantHash, "ConstantHash"}
 };
 
 

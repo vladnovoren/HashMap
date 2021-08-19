@@ -107,7 +107,7 @@ int List_PushBack(List* list, const ListElemT new_elem, size_t* phys_id) {
     if ((check_res = List_CheckAndUpdateCapacity(list)) != LIST_NO_ERRORS)
         return check_res;
 
-    size_t new_free_phys_id = list->elems[list->free_phys_id].next_phys_id;
+    size_t new_free_phys_id = List_GetNextPhysId(list, list->free_phys_id);
     if (list->n_elems)
         List_ConnectNodes(list, list->tail_phys_id, list->free_phys_id);
     else
@@ -128,7 +128,7 @@ int List_PushBack(List* list, const ListElemT new_elem, size_t* phys_id) {
 }
 
 
-inline int List_GetPhysId(List* list, size_t logic_id, size_t* phys_id) {
+int List_GetPhysId(List* list, size_t logic_id, size_t* phys_id) {
     assert(list);
     assert(phys_id);
 
@@ -137,7 +137,7 @@ inline int List_GetPhysId(List* list, size_t logic_id, size_t* phys_id) {
 
     *phys_id = list->head_phys_id;
     while (logic_id) {
-        *phys_id = list->elems[*phys_id].next_phys_id;
+        *phys_id = List_GetNextPhysId(list, *phys_id);
         --logic_id;
     }
     
@@ -183,21 +183,21 @@ int List_EraseByPhysId(List* list, size_t phys_id) {
         list->free_phys_id = list->head_phys_id;
         list->head_phys_id = list->tail_phys_id = LIST_INVALID_ID;
     } else if (phys_id == list->head_phys_id) {
-        size_t new_head_phys_id = list->elems[list->head_phys_id].next_phys_id;
+        size_t new_head_phys_id = List_GetNextPhysId(list, list->head_phys_id);
         List_ConnectNodes(list, list->head_phys_id, list->free_phys_id);
         list->free_phys_id = list->head_phys_id;
         list->elems[list->head_phys_id].prev_phys_id = LIST_INVALID_ID;
         list->head_phys_id = new_head_phys_id;
         list->elems[list->head_phys_id].prev_phys_id = LIST_INVALID_ID;
     } else if (phys_id == list->tail_phys_id) {
-        size_t new_tail_phys_id = list->elems[list->tail_phys_id].prev_phys_id;
+        size_t new_tail_phys_id = List_GetPrevPhysId(list, list->tail_phys_id);
         List_ConnectNodes(list, list->tail_phys_id, list->free_phys_id);
         list->free_phys_id = list->tail_phys_id;
         list->elems[list->free_phys_id].prev_phys_id = LIST_INVALID_ID;
         list->tail_phys_id = new_tail_phys_id;
         list->elems[list->tail_phys_id].next_phys_id = LIST_INVALID_ID;
     } else {
-        List_ConnectNodes(list, list->elems[phys_id].prev_phys_id, list->elems[phys_id].next_phys_id);
+        List_ConnectNodes(list, List_GetPrevPhysId(list, phys_id), List_GetNextPhysId(list, phys_id));
         List_ConnectNodes(list, phys_id, list->free_phys_id);
         list->free_phys_id = phys_id;
         list->elems[list->free_phys_id].prev_phys_id = LIST_INVALID_ID;
@@ -222,8 +222,8 @@ int List_InsertBefore(List* list, const size_t phys_id, const ListElemT new_elem
     if (check_res != LIST_NO_ERRORS)
         return check_res;
 
-    size_t new_free_phys_id = list->elems[list->free_phys_id].next_phys_id;
-    size_t prev_phys_id = list->elems[phys_id].prev_phys_id;
+    size_t new_free_phys_id = List_GetNextPhysId(list, list->free_phys_id);
+    size_t prev_phys_id = List_GetPrevPhysId(list, phys_id);
     list->elems[list->free_phys_id].data = new_elem;
     list->elems[list->free_phys_id].is_used = true;
     List_ConnectNodes(list, prev_phys_id, list->free_phys_id);
@@ -250,8 +250,8 @@ int List_InsertAfter(List* list, const size_t phys_id, const ListElemT new_elem)
     if (check_res != LIST_NO_ERRORS)
         return check_res;
     
-    size_t new_free_phys_id = list->elems[list->free_phys_id].next_phys_id;
-    size_t next_phys_id = list->elems[phys_id].next_phys_id;
+    size_t new_free_phys_id = List_GetNextPhysId(list, list->free_phys_id);
+    size_t next_phys_id = List_GetNextPhysId(list, phys_id);
     list->elems[list->free_phys_id].data = new_elem;
     list->elems[list->free_phys_id].is_used = true;
     List_ConnectNodes(list, phys_id, list->free_phys_id);
@@ -295,30 +295,19 @@ int List_Clear(List* list) {
 }
 
 
-ListElemT List_Find(List* list, const ListElemT elem, size_t* phys_id, size_t* logic_id) {
+size_t List_Find(List* list, const ListElemT elem) {
     assert(list);
 
-    size_t cur_phys_id = 0,
-          cur_logic_id = 0;
+    size_t phys_id = 0;
 
     if (list->n_elems) {
-        cur_phys_id = list->head_phys_id;
-        cur_logic_id = 0;
-        while (cur_phys_id != LIST_INVALID_ID) {
-            if (list->elems[cur_phys_id].data == elem) {
-                if (phys_id && logic_id) {
-                    *phys_id  = cur_phys_id;
-                    *logic_id = cur_logic_id;
-                }
-                return list->elems[cur_phys_id].data;
-            }
-            cur_logic_id++;
-            cur_phys_id = list->elems[cur_phys_id].next_phys_id;
+        phys_id = list->head_phys_id;
+        while (phys_id != LIST_INVALID_ID) {
+            if (list->elems[phys_id].data == elem)
+                return phys_id;
+            phys_id = List_GetNextPhysId(list, phys_id);
         }
     }
 
-    if (phys_id && logic_id)
-        *phys_id = *logic_id = LIST_INVALID_ID;
-
-    return EMPTY_LIST_ELEM;
+    return LIST_INVALID_ID;
 }
