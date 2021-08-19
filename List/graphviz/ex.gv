@@ -1,0 +1,135 @@
+digraph List {
+    node [shape = plaintext];
+    edge [minlen = 3];
+    splines = ortho;
+
+    subgraph Stat {
+        stat [label = <
+            <table border = "1">
+                <tr><td>n_elems: 4</td></tr>
+                <tr><td>capacity: 8</td></tr>
+            </table>
+            >];
+    }
+
+    subgraph cluster_memory {
+        label = "Nodes";
+
+        {rank = same; 0; 1; 2; 3; 4; 5; 6; 7};
+        {rank = same; used_head; used_tail; free_head; free_tail};
+
+        subgraph nodes {
+            0 [label = <
+                <table border = "1" bgcolor = "yellow">
+                    <tr><td>used</td></tr>
+                    <tr><td>phys_id: 0</td></tr>
+                    <tr><td>logic_id: 0</td></tr>
+                </table>
+            >];
+            1 [label = <
+                <table border = "1" bgcolor = "yellow">
+                    <tr><td>used</td></tr>
+                    <tr><td>phys_id: 1</td></tr>
+                    <tr><td>logic_id: 2</td></tr>
+                </table>
+            >];
+            2 [label = <
+                <table border = "1" bgcolor = "yellow">
+                    <tr><td>used</td></tr>
+                    <tr><td>phys_id: 2</td></tr>
+                    <tr><td>logic_id: 3</td></tr>
+                </table>
+            >];
+            3 [label = <
+                <table border = "1" bgcolor = "yellow">
+                    <tr><td>used</td></tr>
+                    <tr><td>phys_id: 3</td></tr>
+                    <tr><td>logic_id: 1</td></tr>
+                </table>
+            >];
+
+            4 [label = <
+                <table border = "1" bgcolor = "white">
+                    <tr><td>free</td></tr>
+                    <tr><td>phys_id: 4</td></tr>
+                    <tr><td>logic_id: 0</td></tr>
+                </table>
+            >];
+            5 [label = <
+                <table border = "1" bgcolor = "white">
+                    <tr><td>free</td></tr>
+                    <tr><td>phys_id: 5</td></tr>
+                    <tr><td>logic_id: 1</td></tr>
+                </table>
+            >];
+            6 [label = <
+                <table border = "1" bgcolor = "white">
+                    <tr><td>free</td></tr>
+                    <tr><td>phys_id: 6</td></tr>
+                    <tr><td>logic_id: 2</td></tr>
+                </table>
+            >];
+            7 [label = <
+                <table border = "1" bgcolor = "white">
+                    <tr><td>free</td></tr>
+                    <tr><td>phys_id: 7</td></tr>
+                    <tr><td>logic_id: 3</td></tr>
+                </table>
+            >];
+
+            edge [constraint = true, style = invis];
+
+            0 -> 1;
+            1 -> 2;
+            2 -> 3;
+            3 -> 4;
+            4 -> 5;
+            5 -> 6;
+            6 -> 7;
+
+            edge [constraint = false, style = ""];
+
+            0 -> 3;
+            3 -> 1;
+            1 -> 2;
+
+            4 -> 5;
+            5 -> 6;
+            6 -> 7;
+        }
+
+        subgraph extreme_elements {
+            free_head [label = <
+                <table>
+                    <tr><td>free_head</td></tr>
+                </table>
+            >];
+
+            free_tail [label = <
+                <table>
+                    <tr><td>free_tail</td></tr>
+                </table>
+            >];
+
+            used_head [label = <
+                <table>
+                    <tr><td>used_head</td></tr>
+                </table>
+            >];
+
+            used_tail [label = <
+                <table>
+                    <tr><td>used_tail</td></tr>
+                </table>
+            >];
+        }
+
+        edge [dir = back, headlabel = "", taillabel = "", minlen = ""];
+
+        0 -> used_head;
+        2 -> used_tail;
+
+        4 -> free_head;
+        7 -> free_tail;
+    }
+}
