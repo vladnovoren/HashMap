@@ -25,7 +25,7 @@ size_t HashTable_GetBucketNum(HashTable* hash_table, const HashT hash) {
 }
 
 
-void HashTable_Set(HashTable* hash_table, List* buckets, size_t n_buckets, size_t n_elems, double max_load_factor, HashT (*get_hash)(const char*)) {
+void HashTable_Set(HashTable* hash_table, List* buckets, size_t n_buckets, size_t n_elems, double max_load_factor, HashT (*get_hash)(const char*), bool rehash_required) {
     assert(hash_table);
     assert(get_hash);
 
@@ -34,6 +34,7 @@ void HashTable_Set(HashTable* hash_table, List* buckets, size_t n_buckets, size_
     hash_table->n_elems = n_elems;
     hash_table->max_load_factor = max_load_factor;
     hash_table->get_hash = get_hash;
+    hash_table->rehash_required = rehash_required;
 }
 
 
@@ -50,7 +51,7 @@ int HashTable_Alloc(HashTable* hash_table) {
                               HASH_TABLE_DEFAULT_N_BUCKETS,
                               HASH_TABLE_DEFAULT_N_ELEMS,
                               HASH_TABLE_DEFAULT_MAX_LOAD_FACTOR,
-                              HASH_TABLE_DEFAULT_GET_HASH);
+                              HASH_TABLE_DEFAULT_GET_HASH, true);
     
     return 0;
 }
@@ -120,6 +121,20 @@ int HashTable_CheckRehash(HashTable* hash_table) {
 }
 
 
+int HashTable_ForceInsert(HashTable* hash_table, const DicElement new_elem) {
+    assert(hash_table);
+
+    HashTableElemT new_hash_table_elem = {new_elem.req_word, new_elem.translation, hash_table->get_hash(new_elem.req_word)};
+    ++hash_table->n_elems;
+
+    size_t bucket_num = HashTable_GetBucketNum(hash_table, new_hash_table_elem.hash);
+    if (List_PushBack(hash_table->buckets + bucket_num, new_hash_table_elem) != LIST_NO_ERRORS)
+        return HASH_TABLE_LIST_ERROR;
+    
+    return HASH_TABLE_NO_ERRORS;
+}
+
+
 int HashTable_Insert(HashTable* hash_table, const DicElement new_elem) {
     assert(hash_table);
 
@@ -128,9 +143,11 @@ int HashTable_Insert(HashTable* hash_table, const DicElement new_elem) {
     if (found != EMPTY_LIST_ELEM)
         return HASH_TABLE_NO_ERRORS;
 
-    int check_rehash_res = HashTable_CheckRehash(hash_table);
-    if (check_rehash_res != HASH_TABLE_NO_ERRORS)
-        return check_rehash_res;
+    if (hash_table->rehash_required) {
+        int check_rehash_res = HashTable_CheckRehash(hash_table);
+        if (check_rehash_res != HASH_TABLE_NO_ERRORS)
+            return check_rehash_res;
+    }
     ++hash_table->n_elems;
 
     size_t bucket_num = HashTable_GetBucketNum(hash_table, new_hash_table_elem.hash);

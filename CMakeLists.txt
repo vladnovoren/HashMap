@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.16.3 FATAL_ERROR)
 
 project(HashTable VERSION 1.0 LANGUAGES CXX)
 
-set(FLAGS "-Wall -Wextra -Werror -g")
+set(FLAGS "-Wall -Wextra -g")
 
 add_subdirectory(ONEGIN_lib)
 add_subdirectory(List)

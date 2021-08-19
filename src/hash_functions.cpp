@@ -29,37 +29,30 @@ HashT ASCII_SumHash(const char* c_str) {
 }
 
 
-HashT PolynomialHash(const char* c_str) {
-    assert(c_str);
-
-	static HashT p_powers[MAX_WORD_LEN] = {};
-	if (!p_powers[0]) {
-		p_powers[0] = 1;
-		for (size_t pos = 1; pos < MAX_WORD_LEN; pos++)
-			p_powers[pos] = p_powers[pos - 1] * POLYNOMIAL_HASH_P;
-	}
-
-	HashT symb_num = 0;
-	HashT hash     = 0;
-	while (c_str[symb_num]) {
-        hash += p_powers[symb_num] * c_str[symb_num];
-        symb_num++;
-    }
-
-	return hash;
+HashT Rol(HashT x) {
+    return (x << 1) | (x >> 63);
 }
 
 
-HashT FNVA1aHash(const char* c_str) {
+HashT RolHash(const char* c_str) {
     assert(c_str);
 
-    HashT hash = FNV_OFFSET_BASICS;
+    HashT hash = 0;
 
     while (*c_str) {
-        hash ^= *c_str;
-        hash *= FNV_PRIME;
-        c_str++;
+        hash = Rol(hash) ^ (*c_str);
+        ++c_str;
     }
 
     return hash;
+}
+
+
+HashT Crc32Hash(const char* c_str) {
+    assert(c_str);
+
+    unsigned int crc_sum = MAX_UNSIGNED_INT;
+    while(*c_str)
+        crc_sum = (crc_sum >> 8) ^ CRC_32_TABLE[(crc_sum ^ *c_str++) & 0xFF];
+    return crc_sum ^ MAX_UNSIGNED_INT;
 }
