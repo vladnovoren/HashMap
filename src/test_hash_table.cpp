@@ -78,3 +78,15 @@ void TestHashFunctions(const char* dic_file_name, const char* gnuplot_path) {
 
     fclose(dispersions_log);
 }
+
+
+void TestSpeed(const char* dic_file_name) {
+    assert(dic_file_name);
+
+    DicBuf dic_buf = DicBuf_ParseDicFile(dic_file_name);
+    HashTable hash_table;
+    HashTable_Alloc(&hash_table);
+    LoadDicToHashTable(&hash_table, &dic_buf);
+    HashTable_Destruct(&hash_table);
+    DicBuf_Destruct(&dic_buf);
+}

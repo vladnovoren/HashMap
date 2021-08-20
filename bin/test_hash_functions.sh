@@ -1,5 +1,5 @@
 # $1 - путь к словарю. $2 - путь к папке с *.csv и *.gpi файлами
-./hash_table $1 $2
+./test_hash_functions $1 $2
 cd $2
 gnuplot ASCII_SumHash.gpi
 gnuplot ConstantHash.gpi
