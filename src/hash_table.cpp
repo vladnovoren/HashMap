@@ -18,7 +18,7 @@ bool operator!=(const ListElemT& first, const ListElemT& second) {
 }
 
 
-size_t HashTable_GetBucketNum(HashTable* hash_table, const HashT hash) {
+size_t HashTable_GetBucketNum(const HashTable* hash_table, const HashT hash) {
     assert(hash_table);
 
     return hash % hash_table->n_buckets;
@@ -69,7 +69,7 @@ void HashTable_Destruct(HashTable* hash_table) {
 }
 
 
-HashTableElemLoc HashTable_Find(HashTable* hash_table, const HashTableElemT elem) {
+HashTableElemLoc HashTable_Find(const HashTable* hash_table, const HashTableElemT elem) {
     assert(hash_table);
 
     size_t bucket_num   = HashTable_GetBucketNum(hash_table, elem.hash);
@@ -78,7 +78,7 @@ HashTableElemLoc HashTable_Find(HashTable* hash_table, const HashTableElemT elem
 }
 
 
-HashTableElemLoc HashTable_Find(HashTable* hash_table, const char* req_word) {
+HashTableElemLoc HashTable_Find(const HashTable* hash_table, const char* req_word) {
     return HashTable_Find(hash_table, {req_word, nullptr, hash_table->get_hash(req_word)});
 }
 
@@ -171,4 +171,12 @@ int HashTable_Erase(HashTable* hash_table, const DicElement elem) {
         return HASH_TABLE_NO_ERRORS;
     else
         return HashTable_Erase(hash_table, &found_loc);
+}
+
+
+void HashTable_Clear(HashTable* hash_table) {
+    assert(hash_table);
+
+    HashTable_Destruct(hash_table);
+    HashTable_Alloc(hash_table);
 }

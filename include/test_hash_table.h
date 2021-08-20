@@ -19,5 +19,9 @@ void TestHashFunction(const HashFunctionInfo* hash_function_info, const DicBuf* 
 
 void TestHashFunctions(const char* dic_file_name, const char* gnuplot_path);
 
+void Search(const HashTable* hash_table, const StrArr* requests);
+
+void TestSpeed(const char* dic_file_name, const char* requests_file_name);
+
 
 #endif /* test_hash_table.h */

@@ -80,13 +80,29 @@ void TestHashFunctions(const char* dic_file_name, const char* gnuplot_path) {
 }
 
 
-void TestSpeed(const char* dic_file_name) {
-    assert(dic_file_name);
+void Search(const HashTable* hash_table, const StrArr* requests) {
+    assert(hash_table);
+    assert(requests);
 
+    for (size_t i = 0; i < 10000; ++i) {
+        for (size_t word_num = 0; word_num < requests->n_strs; ++word_num) {
+            HashTable_Find(hash_table, (const char*)requests->arr[word_num].c_str);
+        }
+    }
+}
+
+
+void TestSpeed(const char* dic_file_name, const char* requests_file_name) {
+    assert(dic_file_name);
+    assert(requests_file_name);
+
+    StrArr requests = FileToStrArr(requests_file_name);
     DicBuf dic_buf = DicBuf_ParseDicFile(dic_file_name);
     HashTable hash_table;
     HashTable_Alloc(&hash_table);
     LoadDicToHashTable(&hash_table, &dic_buf);
+    Search(&hash_table, &requests);
     HashTable_Destruct(&hash_table);
     DicBuf_Destruct(&dic_buf);
+    DestructStrArr(&requests);
 }

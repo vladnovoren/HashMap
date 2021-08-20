@@ -36,6 +36,7 @@ DicBuf DicBuf_ParseDicFile(const char* file_name) {
     for (size_t str_num = 0; str_num < dic_file_buf.n_strs; str_num++) {
         char* req_word_end = strchr(dic_file_buf.arr[str_num].c_str, '=');
         if (!*req_word_end) {
+            printf("ШАЛАВА\n");
             is_legal_format = false;
             str_err_num = str_num;
             break;
@@ -55,13 +56,13 @@ DicBuf DicBuf_ParseDicFile(const char* file_name) {
     }
 
     if (!is_legal_format) {
-        printf("dic::\nstr_num %zu: wrong format\n", str_err_num + 1);
+        printf("dic::str_num %zu: wrong format\n", str_err_num + 1);
         DestructStrArr(&dic_file_buf);
         return EMPTY_DIC_BUF;
     }
 
     dic.dic_file_buf = dic_file_buf;
-    dic.n_elems = dic_file_buf.n_strs;
+    dic.n_elems      = dic_file_buf.n_strs;
 
     return dic;
 }
