@@ -6,6 +6,7 @@
 #include "hash_functions.h"
 #include "common_header.h"
 #include "list.h"
+#include "hash_table_error_types.h"
 
 const size_t  HASH_TABLE_DEFAULT_N_BUCKETS               = 2011;
 const size_t  HASH_TABLE_DEFAULT_N_ELEMS                 = 0;
@@ -13,11 +14,6 @@ const int     HASH_TABLE_INC_N_ELEMS_MUL                 = 2;
 const int     HASH_TABLE_DEFAULT_MAX_LOAD_FACTOR         = 75;
 HashT (*const HASH_TABLE_DEFAULT_GET_HASH) (const char*) = Crc32Hash;
 
-enum HashTable_States {
-    HASH_TABLE_NO_ERRORS,
-    HASH_TABLE_ALLOC_ERROR,
-    HASH_TABLE_LIST_ERROR
-};
 
 typedef size_t HashT;
 
@@ -28,11 +24,6 @@ struct HashTable {
     int    max_load_factor;
     HashT  (*get_hash)(const char*);
     bool   rehash_required;
-};
-
-struct HashTableElemLoc {
-    size_t bucket_num;
-    size_t list_phys_id;
 };
 
 

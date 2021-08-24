@@ -2,22 +2,6 @@
 
 
 
-bool operator==(const ListElemT& first, const ListElemT& second) {
-    if (!first.req_word || !second.req_word)
-        return !first.req_word && !second.req_word;
-
-    if (!strcmp(first.req_word, second.req_word))
-        return true;
-    else
-        return false;
-}
-
-
-bool operator!=(const ListElemT& first, const ListElemT& second) {
-    return !(first == second);
-}
-
-
 size_t HashTable_GetBucketNum(const HashTable* hash_table, const HashT hash) {
     assert(hash_table);
 
@@ -47,13 +31,14 @@ int HashTable_Alloc(HashTable* hash_table) {
     int alloc_res = 0;
     for (size_t bucket_num = 0; bucket_num < HASH_TABLE_DEFAULT_N_BUCKETS; bucket_num++)
         if ((alloc_res = List_Alloc(buckets + bucket_num)))
-            return alloc_res;
+            return HashTable_ReportError(alloc_res);
 
     HashTable_Set(hash_table, buckets,
                               HASH_TABLE_DEFAULT_N_BUCKETS,
                               HASH_TABLE_DEFAULT_N_ELEMS,
                               HASH_TABLE_DEFAULT_MAX_LOAD_FACTOR,
-                              HASH_TABLE_DEFAULT_GET_HASH, true);
+                              HASH_TABLE_DEFAULT_GET_HASH,
+                              true);
     
     return 0;
 }
@@ -69,17 +54,17 @@ void HashTable_Destruct(HashTable* hash_table) {
 }
 
 
-HashTableElemLoc HashTable_Find(const HashTable* hash_table, const HashTableElemT elem) {
+const char* HashTable_Find(const HashTable* hash_table, const char* req_word,
+                                                        const HashT hash) {
     assert(hash_table);
 
-    size_t bucket_num   = HashTable_GetBucketNum(hash_table, elem.hash);
-    size_t list_phys_id = List_Find(hash_table->buckets + bucket_num, elem);
-    return {bucket_num, list_phys_id};
+    size_t bucket_num = HashTable_GetBucketNum(hash_table, elem.hash);
+    return List_Find(hash_table->buckets + bucket_num, req_word);
 }
 
 
-HashTableElemLoc HashTable_Find(const HashTable* hash_table, const char* req_word) {
-    return HashTable_Find(hash_table, {req_word, nullptr, hash_table->get_hash(req_word)});
+const char* HashTable_Find(const HashTable* hash_table, const char* req_word) {
+    return HashTable_Find(hash_table, req_word, hash_table->get_hash(req_word));
 }
 
 
@@ -88,12 +73,14 @@ int HashTable_Rehash(HashTable* hash_table, size_t new_n_buckets) {
 
     List* new_buckets = (List*)calloc(new_n_buckets, sizeof(List));
     if (!new_buckets)
-        return HASH_TABLE_ALLOC_ERROR;
+        return HashTable_ReportError(HASH_TABLE_ALLOC_ERROR);
 
-    int alloc_res = 0;
-    for (size_t bucket_num = 0; bucket_num < new_n_buckets; bucket_num++)
-        if ((alloc_res = List_Alloc(new_buckets + bucket_num)) != LIST_NO_ERRORS)
-            return alloc_res;
+    int alloc_res = LIST_NO_ERRORS;
+    for (size_t bucket_num = 0; bucket_num < new_n_buckets; bucket_num++) {
+        alloc_res = List_Alloc(new_buckets + bucket_num);
+        if (alloc_res != LIST_NO_ERRORS)
+            return 
+    }
 
     size_t new_bucket_num = 0;
     List   old_bucket = {};
@@ -179,4 +166,10 @@ void HashTable_Clear(HashTable* hash_table) {
 
     HashTable_Destruct(hash_table);
     HashTable_Alloc(hash_table);
+}
+
+
+int HashTable_ReportError(const int err_code) {
+    fprintf(stderr, "HashTable: %s\n", HASH_TABLE_ERROR_MSGS[err_code]);
+    return err_code;
 }

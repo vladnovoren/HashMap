@@ -1,7 +1,9 @@
-.out
-.o
+*.out
+*.o
 build
 cmake-build-debug
 .idea
 *callgrind.out.*
 bin/test_speed
+.vscode/
+*.swp

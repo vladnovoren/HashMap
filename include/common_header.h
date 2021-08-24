@@ -2,22 +2,21 @@
 #define COMMON_HEADER_H
 
 
-#include <cstddef>
-#include <cstring>
+#include <stddef.h>
+#include <string.h>
 
 typedef size_t HashT;
 
-struct HashTableElemT {
+typedef struct HashTableElemT {
     const char* req_word;
     const char* translation;
     HashT       hash;
-};
+} HashTableElemT;
 
 typedef HashTableElemT ListElemT;
 
-bool operator==(const ListElemT& first, const ListElemT& second);
-
-bool operator!=(const ListElemT& first, const ListElemT& second);
+#define true 1
+#define false 0
 
 
 #endif /* common_header.h */
