@@ -1,5 +1,5 @@
-#ifndef HASH_FUNCTIONS_H
-#define HASH_FUNCTIONS_H
+#ifndef HASH_FUNCS_H
+#define HASH_FUNCS_H
 
 #include "common_header.h"
 #include "assert.h"
@@ -81,12 +81,12 @@ const unsigned int CRC_32_TABLE[256] = {
 
 const unsigned int MAX_UNSIGNED_INT = 0xFFFFFFFF;
 
-struct HashFunctionInfo {
-    HashT (*hash_function)(const char*);
-    const char* hash_function_name;
+struct HashFuncInfo {
+    HashT (*hash_func)(const char*);
+    const char* hash_func_name;
 };
 
-const size_t N_FUNCTIONS = 5;
+const size_t N_FUNCS = 5;
 
 
 HashT ConstantHash(const char* c_str);
@@ -102,7 +102,7 @@ HashT RolHash(const char* c_str);
 HashT Crc32Hash(const char* c_str);
 
 
-const HashFunctionInfo HASH_FUNCTIONS_INFO[N_FUNCTIONS] = {
+const HashFuncInfo HASH_FUNCS_INFO[N_FUNCS] = {
     {Crc32Hash, "Crc32Hash"},
     {RolHash, "RolHash"},
     {ASCII_SumHash, "ASCII_SumHash"},
@@ -111,4 +111,4 @@ const HashFunctionInfo HASH_FUNCTIONS_INFO[N_FUNCTIONS] = {
 };
 
 
-#endif /* hash_functions.h */
+#endif /* hash_funcs.h */

@@ -87,7 +87,7 @@ int List_PushFront(List* list, const ListElemT new_elem, size_t* phys_id) {
     assert(list);
 
     int check_res = List_CheckAndUpdateCapacity(list);
-    if (check_res != LIST_NO_ERRORS)
+    if (check_res)
         return List_ReportError(check_res);
 
     size_t new_free_phys_id = List_GetNextPhysId(list, list->free_phys_id);
@@ -121,7 +121,7 @@ int List_PushBack(List* list, const ListElemT new_elem, size_t* phys_id) {
     assert(list);
 
     int check_res = List_CheckAndUpdateCapacity(list);
-    if (check_res != LIST_NO_ERRORS)
+    if (check_res)
         return List_ReportError(check_res);
 
     size_t new_free_phys_id = List_GetNextPhysId(list, list->free_phys_id);
@@ -175,7 +175,7 @@ int List_GetByLogicId(List* list, size_t logic_id, ListElemT* found) {
     size_t phys_id = 0;
 
     int get_phys_id_res  = List_GetPhysId(list, logic_id, &phys_id);
-    if (get_phys_id_res != LIST_NO_ERRORS)
+    if (get_phys_id_res)
         return List_ReportError(get_phys_id_res);
 
     *found = list->elems[phys_id].data;
@@ -255,7 +255,7 @@ int List_InsertBefore(List* list, const size_t    phys_id,
         return List_PushFront(list, new_elem, NULL);
     
     int check_res = List_CheckAndUpdateCapacity(list);
-    if (check_res != LIST_NO_ERRORS)
+    if (check_res)
         return List_ReportError(check_res);
 
     size_t new_free_phys_id = List_GetNextPhysId(list, list->free_phys_id);
@@ -287,7 +287,7 @@ int List_InsertAfter(List* list, const size_t phys_id, const ListElemT new_elem)
         return List_PushBack(list, new_elem, NULL);
     
     int check_res = List_CheckAndUpdateCapacity(list);
-    if (check_res != LIST_NO_ERRORS)
+    if (check_res)
         return List_ReportError(check_res);
     
     size_t new_free_phys_id = List_GetNextPhysId(list, list->free_phys_id);

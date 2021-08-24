@@ -27,37 +27,34 @@ struct HashTable {
 };
 
 
-bool             operator==(const ListElemT& first, const ListElemT& second);
+size_t      HashTable_GetBucketNum(const HashTable* hash_table, 
+                                   const HashT hash);
 
-bool             operator!=(const ListElemT& first, const ListElemT& second);
+void        HashTable_Set(HashTable* hash_table, List*  buckets,
+                                                 size_t n_buckets,
+                                                 size_t n_elems,
+                                                 double max_load_factor,
+                                                 HashT (*get_hash)(const char*),
+                                                 bool   rehash_required);
 
-size_t           HashTable_GetBucketNum(const HashTable* hash_table, const HashT hash);
+int         HashTable_Alloc(HashTable* hash_table);
 
-void             HashTable_Set(HashTable* hash_table, List* buckets, size_t n_buckets,
-                               size_t n_elems, double max_load_factor,
-                               HashT (*get_hash)(const char*), bool rehash_required);
+void        HashTable_Destruct(HashTable* hash_table);
 
-int              HashTable_Alloc(HashTable* hash_table);
+const char* HashTable_Find(const HashTable* hash_table, const char* req_word,
+                                                        const HashT hash);
 
-void             HashTable_Destruct(HashTable* hash_table);
+const char* HashTable_Find(const HashTable* hash_table, const char* req_word);
 
-HashTableElemLoc HashTable_Find(const HashTable* hash_table, const HashTableElemT elem);
+int         HashTable_Rehash(HashTable* hash_table, size_t new_n_buckets);
 
-HashTableElemLoc HashTable_Find(const HashTable* hash_table, const char* req_word);
+int         HashTable_CheckRehash(HashTable* hash_table);
 
-int              HashTable_Rehash(HashTable* hash_table, size_t new_n_buckets);
+int         HashTable_Insert(HashTable* hash_table, const DicElement new_elem);
 
-int              HashTable_CheckRehash(HashTable* hash_table);
+void        HashTable_Clear(HashTable* hash_table);
 
-bool             HashTable_IsValidLoc(const HashTableElemLoc* loc);
-
-int              HashTable_Insert(HashTable* hash_table, const DicElement new_elem);
-
-int              HashTable_Erase(HashTable* hash_table, const HashTableElemLoc* loc);
-
-int              HashTable_Erase(HashTable* hash_table, const DicElement elem);
-
-void             HashTable_Clear(HashTable* hash_table);
+int         HashTable_ReportError(const int err_code);
 
 
 #endif /* "hash_table.h" */

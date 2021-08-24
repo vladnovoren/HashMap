@@ -45,9 +45,11 @@ void        List_ConnectArray(List* list, const size_t begin_phys_id,
 
 int         List_CheckAndUpdateCapacity(List* list);
 
-int         List_PushFront(List* list, const ListElemT new_elem, size_t* phys_id);
+int         List_PushFront(List* list, const ListElemT new_elem,
+                                       size_t* phys_id = NULL);
 
-int         List_PushBack(List* list, const ListElemT new_elem, size_t* phys_id);
+int         List_PushBack(List* list, const ListElemT new_elem,
+                                      size_t* phys_id = NULL);
 
 int         List_Alloc(List* list);
 
