@@ -1,6 +1,14 @@
 #include "test_hash_map.h"
 
 
+void DestructAlignedStrArr(StrArr* str_arr) {
+    assert(str_arr);
+
+    for (size_t i = 0; i < str_arr->n_strs; ++i)
+        DestructStr(str_arr->arr + i);
+    free(str_arr->arr);
+}
+
 
 int LoadDicToHashMap(HashMap* hash_map, const DicBuf* dic_buf) {
     assert(hash_map);
@@ -151,7 +159,8 @@ int TestSpeed(const char* dic_file_name, const char* requests_file_name) {
 
     HashMap_Destruct(&hash_map);
     DicBuf_Destruct(&dic_buf);
-    DestructStrArr(&requests);
+    
+    DestructAlignedStrArr(&requests);
 
     return 0;
 }

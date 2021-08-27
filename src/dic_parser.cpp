@@ -20,6 +20,8 @@ int DicBuf_Alloc(DicBuf* dic, size_t n_elems) {
 
 
 void DicBuf_Destruct(DicBuf* dic) {
+    for (size_t i = 0; i < dic->n_elems; ++i)
+        free(dic->elems[i].key);
     DestructStrArr(&dic->src);
     free(dic->elems);
 }
