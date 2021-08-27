@@ -4,31 +4,6 @@
 #include "ONEGIN_lib.h"
 
 
-struct DicElem {
-    const char* key;
-    const char* value;
-};
-
-struct DicBuf {
-    DicElem* elems;
-    size_t   n_elems;
-    StrArr   src;
-};
-
-
-const size_t ALIGN_LEN = 64;
-
-size_t Min(size_t a, size_t b);
-
-int    DicBuf_Alloc(DicBuf* dic, size_t n_elems);
-
-void   DicBuf_Destruct(DicBuf* dic);
-
-int    DicBuf_ParseDicFile(DicBuf* dic, const char* src_path);
-
-int    DicBuf_ReportErr(int err_code);
-
-
 enum DicBufErros {
     DIC_BUF_NO_ERRS,
     DIC_BUF_UNABLE_TO_ALLOC,
@@ -44,6 +19,32 @@ const char* const DIC_BUF_ERR_MSGS[DIC_BUF_N_ERRS] = {
     "StrArr error",
     "wrong *.dic file format"
 };
+
+
+struct DicElem {
+    char* key;
+    char* value;
+};
+
+struct DicBuf {
+    DicElem* elems;
+    size_t   n_elems;
+    StrArr   src;
+};
+
+
+size_t Min(size_t a, size_t b);
+
+int    DicBuf_Alloc(DicBuf* dic, size_t n_elems);
+
+void   DicBuf_Destruct(DicBuf* dic);
+
+int    DicBuf_ParseDicFile(DicBuf* dic, const char* src_path);
+
+int    DicBuf_ReportErr(int err_code);
+
+
+
 
 
 

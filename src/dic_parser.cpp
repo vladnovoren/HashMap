@@ -48,7 +48,10 @@ int DicBuf_ParseDicFile(DicBuf* dic, const char* src_path) {
         char* cr = strchr(key_end, '\r');
         *cr = '\0';
         *key_end = '\0';
-        dic->elems[str_num].key   = src.arr[str_num].c_str;
+        dic->elems[str_num].key = (char*)calloc(64, sizeof(char));
+        if (!dic->elems[str_num].key)
+            return DicBuf_ReportErr(DIC_BUF_UNABLE_TO_ALLOC);
+        strncpy(dic->elems[str_num].key, src.arr[str_num].c_str, 63);
         dic->elems[str_num].value = ++key_end;
     }
     if (!is_legal_frmt) {

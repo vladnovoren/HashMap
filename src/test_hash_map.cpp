@@ -96,16 +96,28 @@ void TestHashFuncs(const char* dic_file_name, const char* gnuplot_path) {
 }
 
 
+void PrepareAlignedRequests(StrArr* src) {
+    assert(src);
+
+    StrArr aligned = AllocStrArr(src->n_strs);
+    for (size_t i = 0; i < aligned.n_strs; ++i) {
+        aligned.arr[i] = AllocStr(63);
+        strncpy(aligned.arr[i].c_str, src->arr[i].c_str, 63);
+    }
+    DestructStrArr(src);
+    *src = aligned;
+}
+
+
 void Search(const HashMap* hash_map, const StrArr* requests) {
     assert(hash_map);
     assert(requests);
 
     clock_t start_t = clock();
-    for (size_t i = 0; i < 10000; ++i) {
-        for (size_t word_num = 0; word_num < requests->n_strs; ++word_num) {
+    for (size_t i = 0; i < 10000; ++i)
+        for (size_t word_num = 0; word_num < requests->n_strs; ++word_num)
             HashMap_Find(hash_map, requests->arr[word_num].c_str);
-        }
-    }
+
     clock_t end_t  = clock();
     printf("search time: %lf\n", (double)(end_t - start_t) / CLOCKS_PER_SEC);
 }
@@ -118,6 +130,8 @@ int TestSpeed(const char* dic_file_name, const char* requests_file_name) {
     StrArr requests = FileToStrArr(requests_file_name);
     if (!requests.n_strs)
         return 1;
+
+    PrepareAlignedRequests(&requests);
 
     DicBuf dic_buf  = {};
     int parse_res = DicBuf_ParseDicFile(&dic_buf, dic_file_name);
