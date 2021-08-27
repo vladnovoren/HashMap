@@ -5,6 +5,7 @@
 #include "dic_parser.h"
 #include <cmath>
 #include <unistd.h>
+#include <time.h>
 
 static const char*  DISPERSIONS_LOG_NAME = "dispersions.csv";
 static const char*  CSV_SUFF             = ".csv";

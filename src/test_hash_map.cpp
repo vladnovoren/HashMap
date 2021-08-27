@@ -100,11 +100,14 @@ void Search(const HashMap* hash_map, const StrArr* requests) {
     assert(hash_map);
     assert(requests);
 
+    clock_t start_t = clock();
     for (size_t i = 0; i < 10000; ++i) {
         for (size_t word_num = 0; word_num < requests->n_strs; ++word_num) {
             HashMap_Find(hash_map, requests->arr[word_num].c_str);
         }
     }
+    clock_t end_t  = clock();
+    printf("search time: %lf\n", (double)(end_t - start_t) / CLOCKS_PER_SEC);
 }
 
 
