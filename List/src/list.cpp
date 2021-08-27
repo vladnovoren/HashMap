@@ -1,5 +1,5 @@
 #include "list.h"
-#include "list_error_gen.h"
+#include "list_err_gen.h"
 
 
 
@@ -33,7 +33,7 @@ int List_Alloc(List* list) {
 
     list->elems = (ListNode*)calloc(LIST_DEFAULT_CAPACITY, sizeof(ListNode));
     if (!list->elems)
-        return List_ReportError(LIST_ALLOC_ERROR);
+        return List_ReportErr(LIST_ALLOC_ERR);
 
     list->n_elems      = LIST_DEFAULT_N_ELEMS;
     list->capacity     = LIST_DEFAULT_CAPACITY;
@@ -44,7 +44,7 @@ int List_Alloc(List* list) {
     list->tail_phys_id = LIST_INVALID_ID;
     list->free_phys_id = 0;
 
-    return LIST_NO_ERRORS;
+    return LIST_NO_ERRS;
 }
 
 
@@ -56,7 +56,7 @@ int List_CheckAndUpdateCapacity(List* list) {
         ListNode* new_elems = (ListNode*)realloc(list->elems,
                                                  sizeof(ListNode) * new_capacity);
         if (!new_elems)
-            return List_ReportError(LIST_ALLOC_ERROR);
+            return List_ReportErr(LIST_ALLOC_ERR);
 
         list->elems        = new_elems;
         list->capacity     = new_capacity;
@@ -65,7 +65,7 @@ int List_CheckAndUpdateCapacity(List* list) {
         List_ConnectArray(list, list->n_elems, list->capacity - 1);
     }
 
-    return LIST_NO_ERRORS;
+    return LIST_NO_ERRS;
 }
 
 
@@ -88,7 +88,7 @@ int List_PushFront(List* list, const ListElemT new_elem, size_t* phys_id) {
 
     int check_res = List_CheckAndUpdateCapacity(list);
     if (check_res)
-        return List_ReportError(check_res);
+        return List_ReportErr(check_res);
 
     size_t new_free_phys_id = List_GetNextPhysId(list, list->free_phys_id);
     if (list->n_elems)
@@ -113,7 +113,7 @@ int List_PushFront(List* list, const ListElemT new_elem, size_t* phys_id) {
 
     ++list->n_elems;
 
-    return LIST_NO_ERRORS;
+    return LIST_NO_ERRS;
 }
 
 
@@ -122,7 +122,7 @@ int List_PushBack(List* list, const ListElemT new_elem, size_t* phys_id) {
 
     int check_res = List_CheckAndUpdateCapacity(list);
     if (check_res)
-        return List_ReportError(check_res);
+        return List_ReportErr(check_res);
 
     size_t new_free_phys_id = List_GetNextPhysId(list, list->free_phys_id);
     if (list->n_elems)
@@ -147,7 +147,7 @@ int List_PushBack(List* list, const ListElemT new_elem, size_t* phys_id) {
 
     ++list->n_elems;
 
-    return LIST_NO_ERRORS;
+    return LIST_NO_ERRS;
 }
 
 
@@ -156,7 +156,7 @@ int List_GetPhysId(List* list, size_t logic_id, size_t* phys_id) {
     assert(phys_id);
 
     if (!List_CheckLogicId(list, logic_id))
-        return List_ReportError(LIST_INVALID_LOGIC_ID);
+        return List_ReportErr(LIST_INVALID_LOGIC_ID);
 
     *phys_id = list->head_phys_id;
     while (logic_id) {
@@ -164,7 +164,7 @@ int List_GetPhysId(List* list, size_t logic_id, size_t* phys_id) {
         --logic_id;
     }
     
-    return LIST_NO_ERRORS;
+    return LIST_NO_ERRS;
 }
 
 
@@ -176,11 +176,11 @@ int List_GetByLogicId(List* list, size_t logic_id, ListElemT* found) {
 
     int get_phys_id_res  = List_GetPhysId(list, logic_id, &phys_id);
     if (get_phys_id_res)
-        return List_ReportError(get_phys_id_res);
+        return List_ReportErr(get_phys_id_res);
 
     *found = list->elems[phys_id].data;
 
-    return LIST_NO_ERRORS;
+    return LIST_NO_ERRS;
 }
 
 
@@ -191,9 +191,9 @@ int List_GetByPhysId(List* list, const size_t phys_id, ListElemT* found) {
     if (List_CheckPhysId(list, phys_id))
         *found = list->elems[phys_id].data;
     else
-        return List_ReportError(LIST_INVALID_PHYS_ID);
+        return List_ReportErr(LIST_INVALID_PHYS_ID);
 
-    return LIST_NO_ERRORS;
+    return LIST_NO_ERRS;
 }
 
 
@@ -201,7 +201,7 @@ int List_EraseByPhysId(List* list, size_t phys_id) {
     assert(list);
 
     if (!List_CheckPhysId(list, phys_id))
-        return List_ReportError(LIST_INVALID_PHYS_ID);
+        return List_ReportErr(LIST_INVALID_PHYS_ID);
 
     if (list->n_elems == 1) {
         List_ConnectNodes(list, list->head_phys_id, list->free_phys_id);
@@ -240,7 +240,7 @@ int List_EraseByPhysId(List* list, size_t phys_id) {
     list->elems[list->free_phys_id].is_used = false;
     --list->n_elems;
 
-    return LIST_NO_ERRORS;
+    return LIST_NO_ERRS;
 }
 
 
@@ -249,14 +249,14 @@ int List_InsertBefore(List* list, const size_t    phys_id,
     assert(list);
 
     if (!List_CheckPhysId(list, phys_id))
-        return List_ReportError(LIST_INVALID_PHYS_ID);
+        return List_ReportErr(LIST_INVALID_PHYS_ID);
 
     if (phys_id == list->head_phys_id)
         return List_PushFront(list, new_elem, NULL);
     
     int check_res = List_CheckAndUpdateCapacity(list);
     if (check_res)
-        return List_ReportError(check_res);
+        return List_ReportErr(check_res);
 
     size_t new_free_phys_id = List_GetNextPhysId(list, list->free_phys_id);
     size_t prev_phys_id     = List_GetPrevPhysId(list, phys_id);
@@ -273,7 +273,7 @@ int List_InsertBefore(List* list, const size_t    phys_id,
 
     ++list->n_elems;
 
-    return LIST_NO_ERRORS;
+    return LIST_NO_ERRS;
 }
 
 
@@ -281,14 +281,14 @@ int List_InsertAfter(List* list, const size_t phys_id, const ListElemT new_elem)
     assert(list);
 
     if (!List_CheckPhysId(list, phys_id))
-        return List_ReportError(LIST_INVALID_PHYS_ID);
+        return List_ReportErr(LIST_INVALID_PHYS_ID);
     
     if (phys_id == list->tail_phys_id)
         return List_PushBack(list, new_elem, NULL);
     
     int check_res = List_CheckAndUpdateCapacity(list);
     if (check_res)
-        return List_ReportError(check_res);
+        return List_ReportErr(check_res);
     
     size_t new_free_phys_id = List_GetNextPhysId(list, list->free_phys_id);
     size_t next_phys_id     = List_GetNextPhysId(list, phys_id);
@@ -305,7 +305,7 @@ int List_InsertAfter(List* list, const size_t phys_id, const ListElemT new_elem)
 
     ++list->n_elems;
 
-    return LIST_NO_ERRORS;
+    return LIST_NO_ERRS;
 }
 
 
@@ -315,12 +315,12 @@ int List_EraseByLogicId(List* list, size_t logic_id) {
     size_t phys_id = 0;
 
     int get_phys_id_res = List_GetPhysId(list, logic_id, &phys_id);
-    if (get_phys_id_res == LIST_NO_ERRORS)
+    if (get_phys_id_res == LIST_NO_ERRS)
         return List_EraseByPhysId(list, phys_id);
     else
-        return List_ReportError(get_phys_id_res);
+        return List_ReportErr(get_phys_id_res);
 
-    return LIST_NO_ERRORS;
+    return LIST_NO_ERRS;
 }
 
 
@@ -340,17 +340,17 @@ int List_Clear(List* list) {
 }
 
 
-const char* List_Find(List* list, const char* req_word) {
+const char* List_Find(List* list, const char* key) {
     assert(list);
-    assert(req_word);
+    assert(key);
 
     size_t phys_id = 0;
 
     if (list->n_elems) {
         phys_id = list->head_phys_id;
         while (phys_id != LIST_INVALID_ID) {
-            if (!strcmp(list->elems[phys_id].data.req_word, req_word))
-                return list->elems[phys_id].data.translation;
+            if (!strcmp(list->elems[phys_id].data.key, key))
+                return list->elems[phys_id].data.value;
             phys_id = List_GetNextPhysId(list, phys_id);
         }
     }
@@ -359,8 +359,9 @@ const char* List_Find(List* list, const char* req_word) {
 }
 
 
-int List_ReportError(const int err_code) {
-    fprintf(stderr, "List: %s\n", LIST_ERROR_MSGS[err_code]);
+int List_ReportErr(const int err_code) {
+    fprintf(stderr, "List: %s\n", LIST_ERR_MSGS[err_code]);
+
     return err_code;
 }
 
@@ -376,5 +377,11 @@ bool List_CheckLogicId(const List* list, const size_t logic_id) {
     assert(list);
 
     return logic_id < list->n_elems;
+}
+
+
+int List_Merge(List* src, const List* dest) {
+    
+    return 0;
 }
 

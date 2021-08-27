@@ -1,4 +1,4 @@
-#include "test_hash_table.h"
+#include "test_hash_map.h"
 
 int main(int argc, char* argv[]) {
     if (argc < 3) {
@@ -6,7 +6,7 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    TestSpeed(argv[1], argv[2]);
+    assert(!TestSpeed(argv[1], argv[2]));
 
     return 0;
 }

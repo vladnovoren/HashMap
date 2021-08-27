@@ -7,13 +7,13 @@
 
 typedef size_t HashT;
 
-typedef struct HashTableElemT {
-    const char* req_word;
-    const char* translation;
+typedef struct HashMapElemT {
+    const char* key;
+    const char* value;
     HashT       hash;
-} HashTableElemT;
+} HashMapElemT;
 
-typedef HashTableElemT ListElemT;
+typedef HashMapElemT ListElemT;
 
 #define true 1
 #define false 0

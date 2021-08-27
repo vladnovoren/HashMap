@@ -8,7 +8,7 @@
 #include <cstdio>
 #include <climits>
 #include "list_config.h"
-#include "list_error_types.h"
+#include "list_err_types.h"
 
 
 static const size_t LIST_DEFAULT_N_ELEMS  = 0;
@@ -81,13 +81,13 @@ int         List_PopFront(List* list);
 
 int         List_PopBack(List* list);
 
-const char* List_Find(List* list, const char* req_word);
+const char* List_Find(List* list, const char* key);
 
 bool        List_CheckPhysId(const List* list, const size_t phys_id);
 
 bool        List_CheckLogicId(const List* list, const size_t logic_id);
 
-int         List_ReportError(const int err_code);
+int         List_ReportErr(const int err_code);
 
 
 #endif /* list.h */

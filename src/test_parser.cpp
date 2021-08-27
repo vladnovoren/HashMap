@@ -10,7 +10,7 @@ int main (int argc, char* argv[]) {
     const char* dic_file_name = argv[1];
     DicBuf dic = DicBuf_ParseDicFile(dic_file_name);
     for (size_t elem_num = 0; elem_num < dic.n_elems; elem_num++) {
-        printf("word: %s, translation: %s\n", dic.elems[elem_num].req_word, dic.elems[elem_num].translation);
+        printf("word: %s, value: %s\n", dic.elems[elem_num].key, dic.elems[elem_num].value);
     }
 
     DicBuf_Destruct(&dic);

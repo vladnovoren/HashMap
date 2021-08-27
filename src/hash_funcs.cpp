@@ -1,4 +1,4 @@
-#include "hash_functions.h"
+#include "hash_funcs.h"
 
 
 
@@ -56,3 +56,14 @@ HashT Crc32Hash(const char* c_str) {
         crc_sum = (crc_sum >> 8) ^ CRC_32_TABLE[(crc_sum ^ *c_str++) & 0xFF];
     return crc_sum ^ MAX_UNSIGNED_INT;
 }
+
+
+//HashT Crc32Hash(const char* c_str) {
+    //assert(c_str);
+
+    //HashT hash = 0;
+    //__asm__("xor %0, %0\n"
+            //"crc32q (%1), %0\n" : "=r" (hash) : "r" (c_str));
+    //return hash;
+//}
+

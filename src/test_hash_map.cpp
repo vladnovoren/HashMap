@@ -1,20 +1,25 @@
-#include "test_hash_table.h"
+#include "test_hash_map.h"
 
 
 
-void LoadDicToHashTable(HashTable* hash_table, const DicBuf* dic_buf) {
-    assert(hash_table);
+int LoadDicToHashMap(HashMap* hash_map, const DicBuf* dic_buf) {
+    assert(hash_map);
+    assert(dic_buf);
+    assert(dic_buf->n_elems);
 
     for (size_t word_num = 0; word_num < dic_buf->n_elems; word_num++) {
-        if (HashTable_Insert(hash_table, dic_buf->elems[word_num]))
-            printf("FATAL ERROR!\n");
+        int ins_res = HashMap_Insert(hash_map, dic_buf->elems[word_num]);
+        if (ins_res)
+            return ins_res;
     }
+
+    return 0;
 }
 
 
-void OutputBucketsSizes(HashTable* hash_table, const char* func_name,
+void OutputBucketsSizes(HashMap* hash_map, const char* func_name,
                         FILE* buckets_sizes_log, FILE* dispersions_log) {
-    assert(hash_table);
+    assert(hash_map);
     assert(buckets_sizes_log);
     assert(dispersions_log);
     assert(func_name);
@@ -22,16 +27,16 @@ void OutputBucketsSizes(HashTable* hash_table, const char* func_name,
     double sqrs_sum = 0,
            average  = 0;
 
-    for (size_t bucket_num = 0; bucket_num < hash_table->n_buckets;
+    for (size_t bucket_num = 0; bucket_num < hash_map->n_buckets;
               ++bucket_num) {
-        average  += hash_table->buckets[bucket_num].n_elems;
-        sqrs_sum += pow(hash_table->buckets[bucket_num].n_elems, 2);
+        average  += hash_map->buckets[bucket_num].n_elems;
+        sqrs_sum += pow(hash_map->buckets[bucket_num].n_elems, 2);
         fprintf(buckets_sizes_log, "%zu;%zu\n",
-                bucket_num, hash_table->buckets[bucket_num].n_elems);
+                bucket_num, hash_map->buckets[bucket_num].n_elems);
     }
 
-    average  /= hash_table->n_buckets;
-    sqrs_sum /= hash_table->n_buckets;
+    average  /= hash_map->n_buckets;
+    sqrs_sum /= hash_map->n_buckets;
     fprintf(dispersions_log, "%s;%lg\n",
             func_name, sqrt(sqrs_sum - average * average));
 }
@@ -52,15 +57,15 @@ void TestHashFunc(const HashFuncInfo* hash_func_info, const DicBuf* dic_buf,
     if (!sizes_log)
         return;
 
-    HashTable hash_table = {};
-    HashTable_Alloc(&hash_table);
-    hash_table.rehash_required = false;
-    hash_table.get_hash = hash_func_info->hash_func;
+    HashMap hash_map = {};
+    HashMap_Alloc(&hash_map);
+    hash_map.rehash_required = false;
+    hash_map.get_hash = hash_func_info->hash_func;
 
-    LoadDicToHashTable(&hash_table, dic_buf);
-    OutputBucketsSizes(&hash_table, hash_func_info->hash_func_name,
+    LoadDicToHashMap(&hash_map, dic_buf);
+    OutputBucketsSizes(&hash_map, hash_func_info->hash_func_name,
                        sizes_log, disp_log);
-    HashTable_Destruct(&hash_table);
+    HashMap_Destruct(&hash_map);
     
     fclose(sizes_log);
 }
@@ -71,7 +76,7 @@ void TestHashFuncs(const char* dic_file_name, const char* gnuplot_path) {
     assert(gnuplot_path);
 
     if (chdir(gnuplot_path)) {
-        printf("error: unable to enter entered gnuplot directory\n");
+        printf("err: unable to enter entered gnuplot directory\n");
         return;
     }
 
@@ -79,7 +84,8 @@ void TestHashFuncs(const char* dic_file_name, const char* gnuplot_path) {
     if (!dispersions_log)
         return;
 
-    DicBuf dic_buf = DicBuf_ParseDicFile(dic_file_name);
+    DicBuf dic_buf = {};
+    DicBuf_ParseDicFile(&dic_buf, dic_file_name);
     for (size_t func_num = 0; func_num < N_FUNCS; ++func_num) {
 		TestHashFunc(HASH_FUNCS_INFO + func_num, &dic_buf, dispersions_log);
     }
@@ -90,29 +96,45 @@ void TestHashFuncs(const char* dic_file_name, const char* gnuplot_path) {
 }
 
 
-void Search(const HashTable* hash_table, const StrArr* requests) {
-    assert(hash_table);
+void Search(const HashMap* hash_map, const StrArr* requests) {
+    assert(hash_map);
     assert(requests);
 
     for (size_t i = 0; i < 10000; ++i) {
         for (size_t word_num = 0; word_num < requests->n_strs; ++word_num) {
-            HashTable_Find(hash_table, (const char*)requests->arr[word_num].c_str);
+            HashMap_Find(hash_map, requests->arr[word_num].c_str);
         }
     }
 }
 
 
-void TestSpeed(const char* dic_file_name, const char* requests_file_name) {
+int TestSpeed(const char* dic_file_name, const char* requests_file_name) {
     assert(dic_file_name);
     assert(requests_file_name);
 
     StrArr requests = FileToStrArr(requests_file_name);
-    DicBuf dic_buf = DicBuf_ParseDicFile(dic_file_name);
-    HashTable hash_table;
-    HashTable_Alloc(&hash_table);
-    LoadDicToHashTable(&hash_table, &dic_buf);
-    Search(&hash_table, &requests);
-    HashTable_Destruct(&hash_table);
+    if (!requests.n_strs)
+        return 1;
+
+    DicBuf dic_buf  = {};
+    int parse_res = DicBuf_ParseDicFile(&dic_buf, dic_file_name);
+    if (parse_res)
+        return parse_res;
+
+    HashMap hash_map = {};
+    int alloc_res = HashMap_Alloc(&hash_map);
+    if (alloc_res)
+        return alloc_res;
+
+    int load_res = LoadDicToHashMap(&hash_map, &dic_buf);
+    if (load_res)
+        return load_res;
+
+    Search(&hash_map, &requests);
+
+    HashMap_Destruct(&hash_map);
     DicBuf_Destruct(&dic_buf);
     DestructStrArr(&requests);
+
+    return 0;
 }
