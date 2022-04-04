@@ -103,7 +103,7 @@ void List_Dump(List* list, FILE* log) {
 
     fprintf(log, "\t\tedge [dir = back, headlabel = \"\", taillabel = \"\", minlen = \"\"];\n\n");
     
-    fprintf(log, "\t\tsubgraph extreme_elements {\n");
+    fprintf(log, "\t\tsubgraph extreme_elems {\n");
     if (list->capacity - list->n_elems){
         fprintf(log, "\t\t\tfree[label = <\n");
         fprintf(log, "\t\t\t\t<table>\n");

@@ -1,11 +1,10 @@
 #ifndef TEST_HASH_FUNCTIONS
 #define TEST_HASH_FUNCTIONS
 
-#include "hash_table.h"
+#include "hash_map.h"
 #include "dic_parser.h"
 #include "assert.h"
 
-static const size_t N_FUNCS = 6;
 static const size_t N_TESTS = 10000;
 
 
