@@ -7,8 +7,8 @@
 #include <unistd.h>
 #include <time.h>
 
-static const char*  DISPERSIONS_LOG_NAME = "dispersions.csv";
-static const char*  CSV_SUFF             = ".csv";
+static const char* const  DISPERSIONS_LOG_NAME = "dispersions.csv";
+static const char* const  CSV_SUFF             = ".csv";
 static const size_t CSV_SUFF_LEN         = strlen(CSV_SUFF);
 
 
