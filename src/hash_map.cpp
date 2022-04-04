@@ -154,7 +154,7 @@ void HashMap_Clear(HashMap* hash_map) {
 
 
 int HashMap_ReportErr(const int err_code) {
-    assert(err_code < HASH_MAP_N_ERR_TYPES);
+    assert(err_code < HASH_MAP_ERR_CNT);
 
     fprintf(stderr, "HashMap: %s\n", HASH_MAP_ERR_MSGS[err_code]);
 

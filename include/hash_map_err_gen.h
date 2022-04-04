@@ -3,7 +3,7 @@
 
 #include "hash_map_err_types.h"
 
-const char* const HASH_MAP_ERR_MSGS[HASH_MAP_N_ERR_TYPES] = {
+const char* const HASH_MAP_ERR_MSGS[HASH_MAP_ERR_CNT] = {
     "no errs",
     "alloc err",
     "list err"
